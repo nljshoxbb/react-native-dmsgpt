@@ -4,7 +4,7 @@ import { Provider, observer } from 'mobx-react';
 import { Text, View } from 'react-native';
 
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
-import RouterIndex from './scenes';
+import ScenesIndex from './scenes';
 import goodsStore from './stores/goodsStore.js';
 
 useStrict(true);
@@ -13,7 +13,7 @@ const stores = { goodsStore }
 class App extends Component<any, any> {
     render() {
         return (
-            <Provider {...stores}><RouterIndex /></Provider>
+            <Provider {...stores}><ScenesIndex /></Provider>
 
         )
     }
