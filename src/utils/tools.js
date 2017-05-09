@@ -108,38 +108,38 @@ var tools = {
 			}
 		}
 	},
-	supportCss3: function (style) {
-		var prefix = ['webkit', 'Moz', 'ms', 'o'],
-			i,
-			humpString = [],
-			htmlStyle = document.documentElement.style,
-			_toHumb = function (string) {
-				return string.replace(/-(\w)/g, function ($0, $1) {
-					return $1.toUpperCase();
-				});
-			};
+	// supportCss3: function (style) {
+	// 	var prefix = ['webkit', 'Moz', 'ms', 'o'],
+	// 		i,
+	// 		humpString = [],
+	// 		htmlStyle = document.documentElement.style,
+	// 		_toHumb = function (string) {
+	// 			return string.replace(/-(\w)/g, function ($0, $1) {
+	// 				return $1.toUpperCase();
+	// 			});
+	// 		};
 
-		for (i in prefix)
-			humpString.push(_toHumb(prefix[i] + '-' + style));
+	// 	for (i in prefix)
+	// 		humpString.push(_toHumb(prefix[i] + '-' + style));
 
-		humpString.push(_toHumb(style));
+	// 	humpString.push(_toHumb(style));
 
-		for (i in humpString)
-			if (humpString[i] in htmlStyle) return true;
+	// 	for (i in humpString)
+	// 		if (humpString[i] in htmlStyle) return true;
 
-		return false;
-	},
-	prefix: (function () {
-		var styles = window.getComputedStyle(document.documentElement, ''),
-			pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o']))[1],
-			dom = ('WebKit|Moz|MS|O').match(new RegExp('(' + pre + ')', 'i'))[1];
-		return {
-			dom: dom,
-			lowercase: pre,
-			css: '-' + pre + '-',
-			js: pre[0].toUpperCase() + pre.substr(1)
-		};
-	})(),
+	// 	return false;
+	// },
+	// prefix: (function () {
+	// 	var styles = window.getComputedStyle(document.documentElement, ''),
+	// 		pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o']))[1],
+	// 		dom = ('WebKit|Moz|MS|O').match(new RegExp('(' + pre + ')', 'i'))[1];
+	// 	return {
+	// 		dom: dom,
+	// 		lowercase: pre,
+	// 		css: '-' + pre + '-',
+	// 		js: pre[0].toUpperCase() + pre.substr(1)
+	// 	};
+	// })(),
 	IsPC: function () {
 		var userAgentInfo = navigator.userAgent;
 		var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
@@ -203,37 +203,37 @@ var tools = {
 
 
 	},
-	turnToRem: function (px) {
-		const htmlFont = document.getElementsByTagName('html')['html'].style.fontSize.replace('px', '');
-		const scale = document.getElementsByTagName('meta')['viewport']['content'].split('=')[5];
-		return px / (htmlFont * scale);
-	},
-	setCookie: function (name, value) {
-		//设置名称为name,值为value的Cookie
-		var expdate = new Date(); //初始化时间
-		expdate.setTime(expdate.getTime() + 30 * 60 * 1000); //时间
-		document.cookie = name + "=" + value + ";expires=" + expdate.toGMTString() + ";path=/";
-		//即document.cookie= name+"="+value+";path=/";   时间可以不要，但路径(path)必须要填写，因为JS的默认路径是当前页，如果不填，此cookie只在当前页面生效！~
-	},
-	getCookie: function (c_name) {
-		if (document.cookie.length > 0) {
-			var c_start = document.cookie.indexOf(c_name + "=")
-			if (c_start != -1) {
-				c_start = c_start + c_name.length + 1
-				var c_end = document.cookie.indexOf(";", c_start)
-				if (c_end == -1) c_end = document.cookie.length
-				return unescape(document.cookie.substring(c_start, c_end))
-			}
-		}
-		return ""
-	},
-	delCookie: function (name) {
-		var exp = new Date();
-		exp.setTime(exp.getTime() - 1);
-		var cval = getCookie(name);
-		if (cval != null)
-			document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
-	},
+	// turnToRem: function (px) {
+	// 	const htmlFont = document.getElementsByTagName('html')['html'].style.fontSize.replace('px', '');
+	// 	const scale = document.getElementsByTagName('meta')['viewport']['content'].split('=')[5];
+	// 	return px / (htmlFont * scale);
+	// },
+	// setCookie: function (name, value) {
+	// 	//设置名称为name,值为value的Cookie
+	// 	var expdate = new Date(); //初始化时间
+	// 	expdate.setTime(expdate.getTime() + 30 * 60 * 1000); //时间
+	// 	document.cookie = name + "=" + value + ";expires=" + expdate.toGMTString() + ";path=/";
+	// 	//即document.cookie= name+"="+value+";path=/";   时间可以不要，但路径(path)必须要填写，因为JS的默认路径是当前页，如果不填，此cookie只在当前页面生效！~
+	// },
+	// getCookie: function (c_name) {
+	// 	if (document.cookie.length > 0) {
+	// 		var c_start = document.cookie.indexOf(c_name + "=")
+	// 		if (c_start != -1) {
+	// 			c_start = c_start + c_name.length + 1
+	// 			var c_end = document.cookie.indexOf(";", c_start)
+	// 			if (c_end == -1) c_end = document.cookie.length
+	// 			return unescape(document.cookie.substring(c_start, c_end))
+	// 		}
+	// 	}
+	// 	return ""
+	// },
+	// delCookie: function (name) {
+	// 	var exp = new Date();
+	// 	exp.setTime(exp.getTime() - 1);
+	// 	var cval = getCookie(name);
+	// 	if (cval != null)
+	// 		document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
+	// },
 	myTrim(x) {
 		if (x) {
 			return x.replace(/\s+/g, "");

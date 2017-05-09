@@ -12,6 +12,7 @@ export const commonStyles = StyleSheet.create({
     },
     grayColor:{
         color:'#9c9c9c'
-    }
+    },
+
 
 })
