@@ -124,7 +124,8 @@ export const styles = StyleSheet.create({
     bottomTitle: {
         color: "#999999",
         fontSize: 13,
-        paddingTop: 15
+        paddingTop: 15,
+    
     }
 
 
