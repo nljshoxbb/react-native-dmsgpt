@@ -1,2 +1,2 @@
-# react-native-Durian
-A durian project
+# react-native-dmsgpt
+A React-Native Client for [dmsgpt](http://www.dmsgpt.com/)
