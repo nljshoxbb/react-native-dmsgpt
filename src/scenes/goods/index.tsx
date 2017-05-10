@@ -5,19 +5,21 @@ import {
     Image,
     StyleSheet,
     ScrollView,
-    Dimensions
+    Dimensions,
+    TouchableWithoutFeedback
 } from 'react-native';
 import ActivityIndicator from 'antd-mobile/lib/activity-indicator';
 import Button from 'antd-mobile/lib/button';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
 import Swiper from 'react-native-swiper';
 import { observable, useStrict } from 'mobx';
 import { Provider, observer } from 'mobx-react';
+
 import { commonStyles } from '../style';
 import { styles } from './styles';
-
+import FruitList from './fruitList';
 
 const RowItem = ({ rowData }: { rowData?: any }) => {
     return (
@@ -35,7 +37,15 @@ const RowItem = ({ rowData }: { rowData?: any }) => {
 }
 
 @observer(['goodsStore'])
-class Goods extends Component<any, any> {
+class GoodsIndexScreen extends Component<any, any> {
+
+    static navigationOptions = ({ navigation }: { navigation?: any }) => {
+
+        return ({
+            header: null
+        })
+    }
+
     componentDidMount() {
         const { goodsStore } = this.props;
         goodsStore.init();
@@ -45,7 +55,11 @@ class Goods extends Component<any, any> {
         return this.props.goodsStore.scrollList.map((rowData: any) => {
             let title = rowData.title.length > 15 ? rowData.title.slice(0, 15) : rowData.title;
             return (
-                <View key={rowData.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View
+                    key={rowData.id}
+                    style={{ flexDirection: 'row', alignItems: 'center' }}
+
+                >
                     <View style={styles.yellowDot}></View>
                     <Text key={rowData.id} style={styles.scrollText}>{title}...</Text>
                 </View>
@@ -64,9 +78,6 @@ class Goods extends Component<any, any> {
 
     _renderCountry() {
         const { countryList } = this.props.goodsStore;
-
-
-
         let countryArr = [
             {
                 titleEn: "Malaysia",
@@ -102,9 +113,9 @@ class Goods extends Component<any, any> {
         }
 
 
-        return countryArr.map((itemData) => {
+        return countryArr.map((itemData,idx) => {
             return (
-                <View style={{ position: 'relative' }} key={itemData.id}>
+                <View style={{ position: 'relative' }} key={idx}>
                     <Image
                         style={{ height: 242, width: null }}
                         source={itemData.img}
@@ -142,7 +153,7 @@ class Goods extends Component<any, any> {
     }
 
     render() {
-        const { goodsStore } = this.props;
+        const { goodsStore, navigation } = this.props;
 
         if (goodsStore.imgList.length == 0) {
             return <ActivityIndicator size="large" toast></ActivityIndicator>
@@ -176,25 +187,25 @@ class Goods extends Component<any, any> {
                 <View style={styles.circleWrap}>
                     <View style={styles.circleBox}>
                         <View style={[styles.circle]}>
-                            {/*<Ionicons name="md-cart" size={30} color="#fff" />*/}
                             <Image source={require('../../../assets/shop-car3x.png')} style={{ height: 50, width: 50 }}></Image>
                         </View>
                         <Text style={{ fontSize: 12 }}>采购入口</Text>
                     </View>
                     <View style={styles.circleBox}>
                         <View style={[styles.circle]}>
-                            {/*<Ionicons name="ios-clipboard" size={30} color="#fff" />*/}
                             <Image source={require('../../../assets/pre3x.png')} style={{ height: 50, width: 50 }}></Image>
                         </View>
                         <Text style={{ fontSize: 12 }}>预定专区</Text>
                     </View>
-                    <View style={styles.circleBox}>
-                        <View style={[styles.circle]}>
-                            {/*<MaterialCommunityIcons name="home" size={32} color="#fff" />*/}
-                            <Image source={require('../../../assets/fru3x.png')} style={{ height: 50, width: 50 }}></Image>
+                    <TouchableWithoutFeedback onPress={() => navigation.navigate('FruitList', { name: 'FruitList' })}>
+                        <View style={styles.circleBox} >
+                            <View style={[styles.circle]}>
+                                <Image source={require('../../../assets/fru3x.png')} style={{ height: 50, width: 50 }}></Image>
+                            </View>
+                            <Text style={{ fontSize: 12 }}>大观园</Text>
                         </View>
-                        <Text style={{ fontSize: 12 }}>大观园</Text>
-                    </View>
+                    </TouchableWithoutFeedback>
+
                     <View style={styles.circleBox}>
                         <View style={[styles.circle]}>
                             <Image source={require('../../../assets/advice3x.png')} style={{ height: 50, width: 50 }}></Image>
@@ -231,30 +242,30 @@ class Goods extends Component<any, any> {
                     </View>
                 </View>
                 {this._renderCountry()}
-                <View style={{ flex: 1, flexDirection: 'row', backgroundColor: '#f6f6f6', padding: 20 }}>
+                <View style={{ flex: 1, flexDirection: 'row', backgroundColor: '#f6f6f6', paddingTop: 20, paddingBottom: 10 }}>
                     <View style={styles.bottomBox}>
                         <Image
-                            style={{ height: 45, width: 45 }}
+                            style={{ height: 28, width: 28 }}
                             source={require('../../../assets/bottom1.png')}
                         />
                         <Text style={styles.bottomTitle}>东盟原产地直购</Text>
-                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 12, paddingTop: 5 }}>100% 原产地直购保证</Text>}
+                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 11, paddingTop: 5 }}>100% 原产地直购保证</Text>}
                     </View>
                     <View style={styles.bottomBox}>
                         <Image
-                            style={{ height: 45, width: 45 }}
+                            style={{ height: 28, width: 28 }}
                             source={require('../../../assets/bottom2.png')}
                         />
                         <Text style={styles.bottomTitle}>会员权益</Text>
-                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 12, paddingTop: 5 }}>会员升级 尊享特权</Text>}
+                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 11, paddingTop: 5 }}>会员升级 尊享特权</Text>}
                     </View>
                     <View style={styles.bottomBox}>
                         <Image
-                            style={{ height: 45, width: 45 }}
+                            style={{ height: 28, width: 28 }}
                             source={require('../../../assets/bottom3.png')}
                         />
                         <Text style={styles.bottomTitle}>极速送达</Text>
-                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 12, paddingTop: 5 }}>专属物流 全程把控</Text>}
+                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 11, paddingTop: 5 }}>专属物流 全程把控</Text>}
                     </View>
                 </View>
 
@@ -265,5 +276,17 @@ class Goods extends Component<any, any> {
 }
 
 
+const GoodsIndex = StackNavigator({
+    GoodsIndex: {
+        screen: GoodsIndexScreen
+    },
+    FruitList: {
+        screen: FruitList,
+        
+    }
+}, {
+        initialRouteName: 'GoodsIndex',
 
-export default Goods;
+    });
+
+export default GoodsIndex;

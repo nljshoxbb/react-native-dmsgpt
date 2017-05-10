@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: '#fff'
     },
     bottomBox: {
         flex: 1,

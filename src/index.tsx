@@ -5,11 +5,15 @@ import { Text, View } from 'react-native';
 
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
 import ScenesIndex from './scenes';
-import goodsStore from './stores/goodsStore.js';
+import goodsStore from './stores/goodsStore';
+import fruitlistStore from './stores/fruitlistStore';
 
 useStrict(true);
 
-const stores = { goodsStore }
+const stores = {
+    goodsStore,
+    fruitlistStore
+}
 class App extends Component<any, any> {
     render() {
         return (
