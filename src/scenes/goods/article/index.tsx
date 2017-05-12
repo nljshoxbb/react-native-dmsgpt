@@ -1,15 +1,24 @@
-import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import React, { Component, SFC } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    ScrollView,
+    WebView
+} from 'react-native';
+import HTMLView from 'react-native-htmlview';
+import { observer, inject } from 'mobx-react';
 
-class Article extends Component {
-
+@inject("articleStore") @observer
+class Article extends Component<any, any> {
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
         const { state } = navigation;
         return ({
             tabBarVisible: false,
             headerBackTitle: null,
             headerTintColor: '#fff',
-            headerTitle:'详情',
+            headerTitle: '详情',
             headerStyle: {
                 position: 'absolute',
                 height: 60,
@@ -18,18 +27,79 @@ class Article extends Component {
                 left: 0,
                 right: 0,
                 zIndex: 999,
-                // opacity: state.params.opacity != 1 ? 0 : 1
             }
         })
     }
 
+    componentDidMount() {
+        const { articleStore, navigation } = this.props;
+        articleStore.getArticle(navigation.state.params.id);
+
+    }
+
+
     render() {
+        const { article } = this.props.articleStore;
+        const HTML = `
+                <!DOCTYPE html>\n
+                <html>
+                <head>
+                    <title>HTML字符串</title>
+                    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+                    <meta name="viewport" content="width=320, user-scalable=no">
+                    <style type="text/css">
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        font: 62.5% arial, sans-serif;
+                       
+                    }
+                  
+                    img{
+                        max-width:100%;
+                        height:auto !important;
+                        
+                    }
+                    p{
+                        text-indent:0!important
+                    }
+                    </style>
+                </head>
+                <body>
+                    <div >
+                        <div style="border-bottom:solid 1px #eee;padding:10px">
+                            <h2>${article.title}</h2>
+                            <div style="font-size:12px;">${article.intro}</div>
+                        </div>
+                       
+                        <div style="padding:5px">
+                            ${article.content}
+                        </div>
+                    </div>
+                 
+                  
+                </body>
+                </html>
+                `;
+        console.log(article)
         return (
-            <View>
-                <Text>Article</Text>
+
+            <View style={{ flex: 1, paddingTop: 64 }}>
+                <WebView
+                    source={{ html: HTML }}
+                    style={{ height: 1000 }}
+                    scalesPageToFit={true}
+
+                >
+                </WebView>
             </View>
+
+
         );
     }
 }
+
+
+
 
 export default Article;

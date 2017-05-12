@@ -51,7 +51,6 @@ class GoodStore {
     @action getRecommandList() {
         axios.post(domain + fruitListApi, tools.parseParam({ page: 1, len: 8, type: 1 }))
             .then(action('getScrollList', (response: any) => {
-
                 if (response.data.code === 'SUCCESS') {
                     this.recommendList = response.data.data;
                 }

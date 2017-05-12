@@ -28,7 +28,7 @@ import MyStatusBar from '../../components/MyStatusBar';
 
 const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) => {
     return (
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { name: 'Article' })}>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { name: 'Article' ,id:rowData.id})}>
             <View style={{ width: 100, alignItems: 'center', justifyContent: 'center', padding: 5 }}  >
                 <Image
                     source={{ uri: rowData.listpic + '?imageView2/1/w/70/h/70' }}
