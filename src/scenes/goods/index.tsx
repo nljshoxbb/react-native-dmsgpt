@@ -6,7 +6,9 @@ import {
     StyleSheet,
     ScrollView,
     Dimensions,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    StatusBar,
+    Animated
 } from 'react-native';
 import ActivityIndicator from 'antd-mobile/lib/activity-indicator';
 import Button from 'antd-mobile/lib/button';
@@ -20,27 +22,38 @@ import { Provider, observer } from 'mobx-react';
 import { commonStyles } from '../style';
 import { styles } from './styles';
 import FruitList from './fruitList';
+import Article from './article';
 
-const RowItem = ({ rowData }: { rowData?: any }) => {
+import MyStatusBar from '../../components/MyStatusBar';
+
+const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) => {
     return (
-        <View style={{ width: 100, alignItems: 'center', justifyContent: 'center', padding: 5 }}>
-            <Image
-                source={{ uri: rowData.listpic + '?imageView2/1/w/70/h/70' }}
-                style={{ height: 70, width: 70 }}
-                resizeMode="cover"
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { name: 'Article' })}>
+            <View style={{ width: 100, alignItems: 'center', justifyContent: 'center', padding: 5 }}  >
+                <Image
+                    source={{ uri: rowData.listpic + '?imageView2/1/w/70/h/70' }}
+                    style={{ height: 70, width: 70 }}
+                    resizeMode="cover"
 
-            />
-            <Text style={{ padding: 10 }}>{rowData.title}</Text>
-            <Text style={[commonStyles.grayColor, { fontSize: 12 }]}>{rowData.intro.length > 10 ? rowData.intro.slice(0, 10) : rowData.intro}...</Text>
-        </View>
+                />
+                <Text style={{ padding: 10 }}>{rowData.title}</Text>
+                <Text style={[commonStyles.grayColor, { fontSize: 12 }]}>{rowData.intro.length > 10 ? rowData.intro.slice(0, 10) : rowData.intro}...</Text>
+            </View>
+        </TouchableWithoutFeedback>
     )
 }
 
+
+
 @observer(['goodsStore'])
 class GoodsIndexScreen extends Component<any, any> {
-
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            scrollY: new Animated.Value(0),
+        };
+    }
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
-
         return ({
             header: null
         })
@@ -70,7 +83,10 @@ class GoodsIndexScreen extends Component<any, any> {
     _renderRecommand() {
         return this.props.goodsStore.recommendList.map((rowData: any) => {
             return (
-                <RowItem key={rowData.id} rowData={rowData} />
+
+                <RowItem key={rowData.id} rowData={rowData} navigation={this.props.navigation} />
+
+
             )
         })
     }
@@ -113,7 +129,7 @@ class GoodsIndexScreen extends Component<any, any> {
         }
 
 
-        return countryArr.map((itemData,idx) => {
+        return countryArr.map((itemData, idx) => {
             return (
                 <View style={{ position: 'relative' }} key={idx}>
                     <Image
@@ -134,7 +150,7 @@ class GoodsIndexScreen extends Component<any, any> {
                             {
                                 itemData.fruitArr.map((rowData: any) => {
                                     return (
-                                        <RowItem key={rowData.id} rowData={rowData} />
+                                        <RowItem key={rowData.id} rowData={rowData} navigation={this.props.navigation} />
                                     )
                                 })
                             }
@@ -154,122 +170,130 @@ class GoodsIndexScreen extends Component<any, any> {
 
     render() {
         const { goodsStore, navigation } = this.props;
-
-        if (goodsStore.imgList.length == 0) {
-            return <ActivityIndicator size="large" toast></ActivityIndicator>
-        }
+        const topBarOpacity = this.state.scrollY.interpolate({
+            inputRange: [0, 80, 160],
+            outputRange: [0, 0.5, 1],
+            extrapolate: 'clamp',
+        });
+        // if (goodsStore.imgList.length == 0) {
+        //     return <ActivityIndicator size="large" toast></ActivityIndicator>
+        // }
         const { height, width } = Dimensions.get('window');
+        const bottomArray = [
+            { img: require('../../../assets/bottom1.png'), title: "东盟原产地直购", subTitle: '100% 原产地直购保证' },
+            { img: require('../../../assets/bottom2.png'), title: "会员权益", subTitle: '会员升级 尊享特权' },
+            { img: require('../../../assets/bottom3.png'), title: "极速送达", subTitle: '专属物流 全程把控' }
+        ]
 
         return (
+            <View style={{ flex: 1 }}>
+                <MyStatusBar
+                    backgroundColor='rgba(113,172,55,1)'
+                    barStyle="light-content"
+                    topBarOpacity={topBarOpacity}
+                />
+                <Animated.ScrollView
+                    scrollEventThrottle={1}
+                    style={{ flex: 1, backgroundColor: '#f6f6f6' }}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }],
+                        { useNativeDriver: true },
+                    )}
 
-            <ScrollView style={{ flex: 1, backgroundColor: '#f6f6f6' }}>
-                <Swiper
-                    height={160}
-                    autoplay
-                    activeDotColor='green'
-                    dot={<View style={styles.dot} />}
-                //showsButtons
                 >
-                    {goodsStore.imgList.map((item: any) => {
-                        return (
-                            <View key={item.id}>
-                                <Image
-                                    source={{ uri: item.imgurl }}
-                                    style={{ height: 160 }}
-                                    resizeMode="cover"
+                    <Swiper
+                        height={160}
+                        autoplay
+                        activeDotColor='green'
+                        dot={<View style={styles.dot} />}
+                    >
+                        {goodsStore.imgList.map((item: any) => {
+                            return (
+                                <View key={item.id}>
+                                    <Image
+                                        source={{ uri: item.imgurl }}
+                                        style={{ height: 160 }}
+                                        resizeMode="cover"
 
-                                />
-                            </View>
-                        )
-                    })}
-                </Swiper>
+                                    />
+                                </View>
+                            )
+                        })}
+                    </Swiper>
 
-                <View style={styles.circleWrap}>
-                    <View style={styles.circleBox}>
-                        <View style={[styles.circle]}>
-                            <Image source={require('../../../assets/shop-car3x.png')} style={{ height: 50, width: 50 }}></Image>
-                        </View>
-                        <Text style={{ fontSize: 12 }}>采购入口</Text>
-                    </View>
-                    <View style={styles.circleBox}>
-                        <View style={[styles.circle]}>
-                            <Image source={require('../../../assets/pre3x.png')} style={{ height: 50, width: 50 }}></Image>
-                        </View>
-                        <Text style={{ fontSize: 12 }}>预定专区</Text>
-                    </View>
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate('FruitList', { name: 'FruitList' })}>
-                        <View style={styles.circleBox} >
+                    <View style={styles.circleWrap}>
+                        <View style={styles.circleBox}>
                             <View style={[styles.circle]}>
-                                <Image source={require('../../../assets/fru3x.png')} style={{ height: 50, width: 50 }}></Image>
+                                <Image source={require('../../../assets/shop-car3x.png')} style={{ height: 50, width: 50 }}></Image>
                             </View>
-                            <Text style={{ fontSize: 12 }}>大观园</Text>
+                            <Text style={{ fontSize: 12 }}>采购入口</Text>
                         </View>
-                    </TouchableWithoutFeedback>
-
-                    <View style={styles.circleBox}>
-                        <View style={[styles.circle]}>
-                            <Image source={require('../../../assets/advice3x.png')} style={{ height: 50, width: 50 }}></Image>
+                        <View style={styles.circleBox}>
+                            <View style={[styles.circle]}>
+                                <Image source={require('../../../assets/pre3x.png')} style={{ height: 50, width: 50 }}></Image>
+                            </View>
+                            <Text style={{ fontSize: 12 }}>预定专区</Text>
                         </View>
-                        <Text style={{ fontSize: 12 }}>我建议</Text>
-                    </View>
-                </View>
+                        <TouchableWithoutFeedback onPress={() => navigation.navigate('FruitList', { name: 'FruitList' })}>
+                            <View style={styles.circleBox} >
+                                <View style={[styles.circle]}>
+                                    <Image source={require('../../../assets/fru3x.png')} style={{ height: 50, width: 50 }}></Image>
+                                </View>
+                                <Text style={{ fontSize: 12 }}>大观园</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
 
-                <View style={styles.scrollWrap}>
-                    <Text style={{ color: '#51b3f0', fontSize: 21, fontWeight: '800', paddingRight: 20 }}>新鲜事</Text>
-                    <View style={{ flex: 1, }}>
-                        <Swiper
-                            horizontal={false}
-                            autoplay
-                            height={14}
-                            showsPagination={false}
-                        >{this._rendScrollList()}</Swiper>
+                        <View style={styles.circleBox}>
+                            <View style={[styles.circle]}>
+                                <Image source={require('../../../assets/advice3x.png')} style={{ height: 50, width: 50 }}></Image>
+                            </View>
+                            <Text style={{ fontSize: 12 }}>我建议</Text>
+                        </View>
                     </View>
-                </View>
 
-                <View style={styles.hotSale}>
-                    <View style={styles.hotSaletitle}>
-                        <View style={styles.titleDot}></View>
-                        <Text style={{ fontSize: 16 }}>热卖推荐</Text>
-                        <View style={styles.titleDot}></View>
+                    <View style={styles.scrollWrap}>
+                        <Text style={{ color: '#51b3f0', fontSize: 21, fontWeight: '800', paddingRight: 20 }}>新鲜事</Text>
+                        <View style={{ flex: 1, }}>
+                            <Swiper
+                                horizontal={false}
+                                autoplay
+                                height={14}
+                                showsPagination={false}
+                            >{this._rendScrollList()}</Swiper>
+                        </View>
                     </View>
-                    <View >
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                        >
-                            {this._renderRecommand()}
-                        </ScrollView>
-                    </View>
-                </View>
-                {this._renderCountry()}
-                <View style={{ flex: 1, flexDirection: 'row', backgroundColor: '#f6f6f6', paddingTop: 20, paddingBottom: 10 }}>
-                    <View style={styles.bottomBox}>
-                        <Image
-                            style={{ height: 28, width: 28 }}
-                            source={require('../../../assets/bottom1.png')}
-                        />
-                        <Text style={styles.bottomTitle}>东盟原产地直购</Text>
-                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 11, paddingTop: 5 }}>100% 原产地直购保证</Text>}
-                    </View>
-                    <View style={styles.bottomBox}>
-                        <Image
-                            style={{ height: 28, width: 28 }}
-                            source={require('../../../assets/bottom2.png')}
-                        />
-                        <Text style={styles.bottomTitle}>会员权益</Text>
-                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 11, paddingTop: 5 }}>会员升级 尊享特权</Text>}
-                    </View>
-                    <View style={styles.bottomBox}>
-                        <Image
-                            style={{ height: 28, width: 28 }}
-                            source={require('../../../assets/bottom3.png')}
-                        />
-                        <Text style={styles.bottomTitle}>极速送达</Text>
-                        {width == 320 ? <Text /> : <Text style={{ color: "#999999", fontSize: 11, paddingTop: 5 }}>专属物流 全程把控</Text>}
-                    </View>
-                </View>
 
-            </ScrollView>
+                    <View style={styles.hotSale}>
+                        <View style={styles.hotSaletitle}>
+                            <View style={styles.titleDot}></View>
+                            <Text style={{ fontSize: 16 }}>热卖推荐</Text>
+                            <View style={styles.titleDot}></View>
+                        </View>
+                        <View >
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                {this._renderRecommand()}
+                            </ScrollView>
+                        </View>
+                    </View>
+                    {this._renderCountry()}
+                    <View style={styles.bottomWrap}>
+                        {bottomArray.map((item: any) => (
+                            <View style={styles.bottomBox}>
+                                <Image
+                                    style={styles.bottomImage}
+                                    source={item.img}
+                                />
+                                <Text style={styles.bottomTitle}>{item.title}</Text>
+                                {width == 320 ? <Text /> : <Text style={styles.bottomText}>{item.subTitle}</Text>}
+                            </View>
+                        ))}
+                    </View>
+                </Animated.ScrollView>
+            </View>
+
 
         );
     }
@@ -282,7 +306,9 @@ const GoodsIndex = StackNavigator({
     },
     FruitList: {
         screen: FruitList,
-        
+    },
+    Article: {
+        screen: Article
     }
 }, {
         initialRouteName: 'GoodsIndex',

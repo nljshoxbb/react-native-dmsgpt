@@ -115,17 +115,33 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#fff',
     },
+    bottomWrap: {
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: '#f6f6f6',
+        paddingTop: 20,
+        paddingBottom: 10
+    },
     bottomBox: {
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center'
     },
+    bottomImage: {
+        height: 28,
+        width: 28
+    },
     bottomTitle: {
         color: "#999999",
         fontSize: 13,
         paddingTop: 15,
-    
+
+    },
+    bottomText: {
+        color: "#999999",
+        fontSize: 11,
+        paddingTop: 5
     }
 
 

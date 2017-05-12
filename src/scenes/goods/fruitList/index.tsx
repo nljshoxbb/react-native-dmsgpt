@@ -5,7 +5,8 @@ import {
     ScrollView,
     Image,
     ListView,
-    Animated
+    Animated,
+    StatusBar
 } from 'react-native';
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
 import { observable, useStrict } from 'mobx';
@@ -19,7 +20,6 @@ type Banner = null;
 class FruitList extends Component<any, any> {
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
         const { state } = navigation;
-        console.log(state.params.opacity)
         return ({
             tabBarVisible: false,
             headerBackTitle: null,
@@ -75,44 +75,45 @@ class FruitList extends Component<any, any> {
         const { goodsStore, fruitlistStore } = this.props;
 
         return (
-            <ListView
-                dataSource={fruitlistStore.fruitList}
-                onChangeVisibleRows={this._onChangeVisibleRows}
-                renderRow={this._renderRow}
-                onScroll={this._onScroll}
-                renderHeader={() => (
-                    <View>
-                        {/*<View style={{ backgroundColor: '#fff', padding: 10, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 99 }}>
-                            <Text>11111111</Text>
-                        </View>*/}
-                        <Swiper
-                            height={160}
-                            autoplay
-                            activeDotColor='green'
-                            dot={<View style={styles.dot} />}
-                        //showsButtons
-                        >
-                            {goodsStore.imgList.map((item: any) => {
-                                return (
-                                    <View key={item.id}>
-                                        <Image
-                                            source={{ uri: item.imgurl }}
-                                            style={{ height: 160 }}
-                                            resizeMode="cover"
+            <View style={{ flex: 1 }}>
+                
+                <ListView
+                    dataSource={fruitlistStore.fruitList}
+                    onChangeVisibleRows={this._onChangeVisibleRows}
+                    renderRow={this._renderRow}
+                    onScroll={this._onScroll}
+                    renderHeader={() => (
+                        <View>
+                            <Swiper
+                                height={160}
+                                autoplay
+                                activeDotColor='green'
+                                dot={<View style={styles.dot} />}
+                            //showsButtons
+                            >
+                                {goodsStore.imgList.map((item: any) => {
+                                    return (
+                                        <View key={item.id}>
+                                            <Image
+                                                source={{ uri: item.imgurl }}
+                                                style={{ height: 160 }}
+                                                resizeMode="cover"
 
-                                        />
-                                    </View>
-                                )
-                            })}
-                        </Swiper>
-                    </View>
+                                            />
+                                        </View>
+                                    )
+                                })}
+                            </Swiper>
+                        </View>
 
-                )
-                }
-            >
+                    )
+                    }
+                >
 
 
-            </ListView >
+                </ListView >
+            </View>
+
         );
     }
 }
