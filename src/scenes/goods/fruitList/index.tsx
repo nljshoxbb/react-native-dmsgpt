@@ -6,7 +6,8 @@ import {
     Image,
     ListView,
     Animated,
-    StatusBar
+    StatusBar,
+    StyleSheet
 } from 'react-native';
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
 import { observable, useStrict } from 'mobx';
@@ -14,7 +15,10 @@ import { Provider, observer, inject } from 'mobx-react';
 import Swiper from 'react-native-swiper';
 import { styles } from './styles';
 
-type Banner = null;
+import MyStatusBar from '../../../components/MyStatusBar';
+
+type _animateValue = null;
+type _animateOpacity = null;
 
 @observer(['fruitlistStore', 'goodsStore'])
 class FruitList extends Component<any, any> {
@@ -26,25 +30,47 @@ class FruitList extends Component<any, any> {
             headerTintColor: '#fff',
             headerStyle: {
                 position: 'absolute',
-                height: 60,
                 backgroundColor: 'rgba(113,172,55,1)',
                 top: 0,
                 left: 0,
                 right: 0,
-                zIndex: 999,
-                opacity: state.params.opacity != 1 ? 0 : 1
-            }
+                // height: !state.params ? 0 : state.params.animatedValue,
+                // overflow: 'hidden',
+                height: 60,
+                opacity: !state.params ? 0 : state.params.animateOpacity,
+            },
+
         })
     }
-
-    _banner: Banner;
+    _animateValue = new Animated.Value(0);
+    _animateOpacity = new Animated.Value(0);
     constructor(props: any) {
         super(props);
 
     }
 
     componentDidMount() {
+        this.props.fruitlistStore.getFruitList();
+    }
 
+
+    componentWillMount() {
+        const HEADER_MAX_HEIGHT = 60;
+        const HEADER_MIN_HEIGHT = 0;
+        const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+
+        this.props.navigation.setParams({
+            // animatedValue: this._animateValue.interpolate({
+            //     inputRange: [0, HEADER_SCROLL_DISTANCE],
+            //     outputRange: [HEADER_MIN_HEIGHT, HEADER_MAX_HEIGHT],
+            //     extrapolate: 'clamp'
+            // }),
+            animateOpacity: this._animateValue.interpolate({
+                inputRange: [0, 160],
+                outputRange: [0, 1],
+                extrapolate: 'clamp'
+            })
+        })
     }
 
 
@@ -55,33 +81,35 @@ class FruitList extends Component<any, any> {
                     source={{ uri: rowData.listpic + '?imageView2/1/w/200/h/200' }}
                     style={{ height: 100, width: 100 }}
                 />
+                <View><Text>11233</Text></View>
             </View>
         )
     }
 
-    _onChangeVisibleRows(visibleRows: any, changedRows: any) {
-        // console.log(visibleRows, changedRows);
-    }
 
     _onScroll = (event?: any) => {
-        if (event.nativeEvent.contentOffset.y > 160) {
-            this.props.navigation.setParams({ opacity: 1 })
-        } else {
-            this.props.navigation.setParams({ opacity: 0 })
-        }
+
     }
+    _renderSectionHeader = (sectionData: string, sectionID: string) => {
+        return (
+            <View style={{ paddingTop: 60, flexDirection: 'column'}}>
+                <View style={[contentStyles.sectionHeaderBox, { backgroundColor: 'red' }]}></View>
+                <View style={[contentStyles.sectionHeaderBox, { backgroundColor: 'blue' }]}></View>
+                <View style={[contentStyles.sectionHeaderBox, { backgroundColor: 'green' }]}></View>
+                <View style={[contentStyles.sectionHeaderBox, { backgroundColor: 'red' }]}></View>
+            </View>
+        );
+    };
 
     render() {
         const { goodsStore, fruitlistStore } = this.props;
-
         return (
             <View style={{ flex: 1 }}>
-                
                 <ListView
                     dataSource={fruitlistStore.fruitList}
-                    onChangeVisibleRows={this._onChangeVisibleRows}
                     renderRow={this._renderRow}
-                    onScroll={this._onScroll}
+                    onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this._animateValue } } }])}
+                    renderSectionHeader={this._renderSectionHeader}
                     renderHeader={() => (
                         <View>
                             <Swiper
@@ -89,7 +117,6 @@ class FruitList extends Component<any, any> {
                                 autoplay
                                 activeDotColor='green'
                                 dot={<View style={styles.dot} />}
-                            //showsButtons
                             >
                                 {goodsStore.imgList.map((item: any) => {
                                     return (
@@ -105,17 +132,33 @@ class FruitList extends Component<any, any> {
                                 })}
                             </Swiper>
                         </View>
-
                     )
                     }
+                    initialListSize={10}
+                    //pageSize={4}
+                    scrollRenderAheadDistance={500}
+                    scrollEventThrottle={16}
                 >
-
-
                 </ListView >
             </View>
 
         );
     }
 }
+
+const contentStyles = StyleSheet.create({
+    sectionHeader: {
+        paddingTop: 60,
+        flexDirection: 'row',
+        backgroundColor: '#fff',
+        // justifyContent: 'space-between',
+        // height: 30
+    },
+    sectionHeaderBox: {
+        flex: 1,
+        justifyContent: 'center',
+        height: 20
+    }
+})
 
 export default FruitList;

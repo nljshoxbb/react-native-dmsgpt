@@ -21,7 +21,7 @@ class Article extends Component<any, any> {
             headerTitle: '详情',
             headerStyle: {
                 position: 'absolute',
-                height: 60,
+                height: 64,
                 backgroundColor: 'rgba(113,172,55,1)',
                 top: 0,
                 left: 0,
@@ -72,7 +72,7 @@ class Article extends Component<any, any> {
                             <div style="font-size:12px;">${article.intro}</div>
                         </div>
                        
-                        <div style="padding:5px">
+                        <div style="padding:7px">
                             ${article.content}
                         </div>
                     </div>
@@ -81,15 +81,15 @@ class Article extends Component<any, any> {
                 </body>
                 </html>
                 `;
-        console.log(article)
+
         return (
 
-            <View style={{ flex: 1, paddingTop: 64 }}>
+            <View style={{ flex: 1,paddingTop:64}}>
                 <WebView
                     source={{ html: HTML }}
                     style={{ height: 1000 }}
                     scalesPageToFit={true}
-
+                    
                 >
                 </WebView>
             </View>

@@ -11,22 +11,29 @@ import tools from '../utils/tools.js';
 import axios from 'axios';
 import { ListView } from 'react-native';
 
+const dataSource = new ListView.DataSource({
+    rowHasChanged: (row1, row2) => row1 !== row2,
+    sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
+});
+
 class fruitlistStore {
-    @observable fruitList: any = [];
+    @observable fruitList = dataSource
 
     constructor() {
-        this.init()
+
     }
 
 
 
     @action getFruitList() {
         axios.post(domain + fruitListApi, tools.parseParam({ page: 1, len: 20, type: 1 }))
-            .then(action('getScrollList', (response: any) => {
+            .then(action('getFruitList', (response: any) => {
 
                 if (response.data.code === 'SUCCESS') {
-                    let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 != r2 });
-                    this.fruitList = ds.cloneWithRows(response.data.data);
+
+                    const dataBlob = response.data.data;
+                    this.fruitList = dataSource.cloneWithRowsAndSections([dataBlob]);
+                   
                 }
             }))
             .catch(function (error) {

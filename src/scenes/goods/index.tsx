@@ -8,7 +8,9 @@ import {
     Dimensions,
     TouchableWithoutFeedback,
     StatusBar,
-    Animated
+    Animated,
+    RefreshControl,
+    Platform
 } from 'react-native';
 import ActivityIndicator from 'antd-mobile/lib/activity-indicator';
 import Button from 'antd-mobile/lib/button';
@@ -28,7 +30,7 @@ import MyStatusBar from '../../components/MyStatusBar';
 
 const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) => {
     return (
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { name: 'Article' ,id:rowData.id})}>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { id: rowData.id })}>
             <View style={{ width: 100, alignItems: 'center', justifyContent: 'center', padding: 5 }}  >
                 <Image
                     source={{ uri: rowData.listpic + '?imageView2/1/w/70/h/70' }}
@@ -43,7 +45,9 @@ const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) =>
     )
 }
 
-
+const HEADER_MAX_HEIGHT = 300;
+const HEADER_MIN_HEIGHT = Platform.OS === 'ios' ? 60 : 73;
+const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 @observer(['goodsStore'])
 class GoodsIndexScreen extends Component<any, any> {
@@ -64,31 +68,25 @@ class GoodsIndexScreen extends Component<any, any> {
         goodsStore.init();
     }
 
-    _rendScrollList() {
-        return this.props.goodsStore.scrollList.map((rowData: any) => {
+    _rendNews() {
+        return this.props.goodsStore.scrollList.map((rowData: any, idx: number | string) => {
             let title = rowData.title.length > 15 ? rowData.title.slice(0, 15) : rowData.title;
             return (
-                <View
+                <TouchableWithoutFeedback
                     key={rowData.id}
-                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => this.props.navigation.navigate('Article', { name: 'Article', id: rowData.id })}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }} >
+                        <View style={styles.yellowDot}></View>
+                        <Text key={rowData.id} style={styles.scrollText}>{title}...</Text>
+                    </View>
+                </TouchableWithoutFeedback>
 
-                >
-                    <View style={styles.yellowDot}></View>
-                    <Text key={rowData.id} style={styles.scrollText}>{title}...</Text>
-                </View>
             )
         })
     }
 
     _renderRecommand() {
-        return this.props.goodsStore.recommendList.map((rowData: any) => {
-            return (
-
-                <RowItem key={rowData.id} rowData={rowData} navigation={this.props.navigation} />
-
-
-            )
-        })
+        return this.props.goodsStore.recommendList.map((rowData: any) => (<RowItem key={rowData.id} rowData={rowData} navigation={this.props.navigation} />))
     }
 
 
@@ -119,17 +117,22 @@ class GoodsIndexScreen extends Component<any, any> {
             }
         ];
 
+
         if (countryList.length != 0) {
             countryList.forEach((item: any, idx: number) => {
                 if (!item) {
                     item = [];
                 }
-                countryArr[idx].fruitArr = item;
+                if (countryArr[idx]) {
+                    countryArr[idx].fruitArr = item;
+                }
+
+
             })
         }
 
-
         return countryArr.map((itemData, idx) => {
+
             return (
                 <View style={{ position: 'relative' }} key={idx}>
                     <Image
@@ -175,23 +178,24 @@ class GoodsIndexScreen extends Component<any, any> {
             outputRange: [0, 0.5, 1],
             extrapolate: 'clamp',
         });
-        // if (goodsStore.imgList.length == 0) {
-        //     return <ActivityIndicator size="large" toast></ActivityIndicator>
-        // }
         const { height, width } = Dimensions.get('window');
         const bottomArray = [
             { img: require('../../../assets/bottom1.png'), title: "东盟原产地直购", subTitle: '100% 原产地直购保证' },
             { img: require('../../../assets/bottom2.png'), title: "会员权益", subTitle: '会员升级 尊享特权' },
             { img: require('../../../assets/bottom3.png'), title: "极速送达", subTitle: '专属物流 全程把控' }
-        ]
+        ];
+
 
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ height: height }}>
                 <MyStatusBar
                     backgroundColor='rgba(113,172,55,1)'
                     barStyle="light-content"
                     topBarOpacity={topBarOpacity}
                 />
+                <View style={{ position: 'absolute', width: width, height: 60, backgroundColor: 'red' }}>
+
+                </View>
                 <Animated.ScrollView
                     scrollEventThrottle={1}
                     style={{ flex: 1, backgroundColor: '#f6f6f6' }}
@@ -199,7 +203,15 @@ class GoodsIndexScreen extends Component<any, any> {
                         [{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }],
                         { useNativeDriver: true },
                     )}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={goodsStore.refreshing}
+                            onRefresh={() => goodsStore.onRefresh()}
+                        //style={{ backgroundColor: 'transparent' }}
+                        //colors={['transparent']}
+                        //tintColor='transparent'
 
+                        />}
                 >
                     <Swiper
                         height={160}
@@ -234,7 +246,7 @@ class GoodsIndexScreen extends Component<any, any> {
                             </View>
                             <Text style={{ fontSize: 12 }}>预定专区</Text>
                         </View>
-                        <TouchableWithoutFeedback onPress={() => navigation.navigate('FruitList', { name: 'FruitList' })}>
+                        <TouchableWithoutFeedback onPress={() => navigation.navigate('FruitList')}>
                             <View style={styles.circleBox} >
                                 <View style={[styles.circle]}>
                                     <Image source={require('../../../assets/fru3x.png')} style={{ height: 50, width: 50 }}></Image>
@@ -242,7 +254,6 @@ class GoodsIndexScreen extends Component<any, any> {
                                 <Text style={{ fontSize: 12 }}>大观园</Text>
                             </View>
                         </TouchableWithoutFeedback>
-
                         <View style={styles.circleBox}>
                             <View style={[styles.circle]}>
                                 <Image source={require('../../../assets/advice3x.png')} style={{ height: 50, width: 50 }}></Image>
@@ -257,9 +268,9 @@ class GoodsIndexScreen extends Component<any, any> {
                             <Swiper
                                 horizontal={false}
                                 autoplay
-                                height={14}
+                                height={16}
                                 showsPagination={false}
-                            >{this._rendScrollList()}</Swiper>
+                            >{this._rendNews()}</Swiper>
                         </View>
                     </View>
 
@@ -280,8 +291,8 @@ class GoodsIndexScreen extends Component<any, any> {
                     </View>
                     {this._renderCountry()}
                     <View style={styles.bottomWrap}>
-                        {bottomArray.map((item: any) => (
-                            <View style={styles.bottomBox}>
+                        {bottomArray.map((item: any, idx: number) => (
+                            <View style={styles.bottomBox} key={idx}>
                                 <Image
                                     style={styles.bottomImage}
                                     source={item.img}
@@ -312,6 +323,7 @@ const GoodsIndex = StackNavigator({
     }
 }, {
         initialRouteName: 'GoodsIndex',
+        headerMode: 'screen'
 
     });
 

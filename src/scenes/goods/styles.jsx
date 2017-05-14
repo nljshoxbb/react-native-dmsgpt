@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#fff'
     },
     scrollText: {
-        fontSize: 12
+        fontSize: 14
     },
     yellowDot: {
         height: 8,
