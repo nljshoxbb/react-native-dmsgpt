@@ -33,7 +33,7 @@ const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) =>
         <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { id: rowData.id })}>
             <View style={{ width: 100, alignItems: 'center', justifyContent: 'center', padding: 5 }}  >
                 <Image
-                    source={{ uri: rowData.listpic + '?imageView2/1/w/70/h/70' }}
+                    source={{ uri: rowData.listpic + '?imageView2/2/w/70/h/70/interlace/1' }}
                     style={{ height: 70, width: 70 }}
                     resizeMode="cover"
 

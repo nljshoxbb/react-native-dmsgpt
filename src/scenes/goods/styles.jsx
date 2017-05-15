@@ -120,7 +120,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#f6f6f6',
         paddingTop: 20,
-        paddingBottom: 10
+        paddingBottom:60
     },
     bottomBox: {
         flex: 1,
