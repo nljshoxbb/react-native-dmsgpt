@@ -9,7 +9,9 @@ import {
     StatusBar,
     StyleSheet,
     RefreshControl,
-    Dimensions
+    Dimensions,
+    Platform,
+    TouchableWithoutFeedback
 } from 'react-native';
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
 import { observable, useStrict } from 'mobx';
@@ -20,11 +22,16 @@ import { styles } from './styles';
 
 import MyStatusBar from '../../../components/MyStatusBar';
 
+const DEVICE_WIDTH = Dimensions.get("window").width;
+
+const ip5 = (Platform.OS === 'ios' && DEVICE_WIDTH == 640) ? true : false;
+
 type _animateValue = null;
 type _animateOpacity = null;
 
 @observer(['fruitlistStore', 'goodsStore'])
 class FruitList extends Component<any, any> {
+
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
         const { state } = navigation;
         return ({
@@ -47,13 +54,17 @@ class FruitList extends Component<any, any> {
     }
     _animateValue = new Animated.Value(0);
     _animateOpacity = new Animated.Value(0);
+    _box = null;
     constructor(props: any) {
         super(props);
-
+        this.state = {
+            scrollY: []
+        }
     }
 
     componentDidMount() {
         this.props.fruitlistStore.getFruitList();
+
     }
 
 
@@ -76,22 +87,63 @@ class FruitList extends Component<any, any> {
         })
     }
 
+
+
     componentWillUnmount() {
         // console.log('componentWillUnmount');
     }
 
+    _renderRow(rowData: any, context: any) {
+        console.log(rowData)
+        // + '?imageView2/2/w/130/h/130/interlace/1' 
 
-
-    _renderRow(rowData: any) {
-
+        let animated = new Animated.Value(0);
+        const width = ip5 ? 140 : 160;
+        const translateHeight = width - 40;
         return (
-            <View style={contentStyles.row}>
-                <Image
-                    source={{ uri: rowData.listpic + '?imageView2/2/w/130/h/130/interlace/1' }}
-                    style={{ height: 130, width: 130 }}
-                />
-                <View><Text>{rowData.title}</Text></View>
-            </View>
+            <TouchableWithoutFeedback
+                onPress={() => context.props.navigation.navigate('Article', { id: rowData.id })}>
+                <View style={contentStyles.row}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                        <Image
+                            source={{ uri: rowData.listpic }}
+                            style={{ height: translateHeight, width: width }}
+                        />
+                    </View>
+
+                    <View style={{ paddingTop: 10 }}>
+                        <Text style={{ color: '#666666' }}>{rowData.title}</Text>
+                        <View style={{ paddingTop: 7, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{ fontSize: 12, color: '#999999' }}>产季：{rowData.season}</Text>
+                            <Text style={{ fontSize: 13, color: '#00b6f6' }}>{rowData.producing}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{ fontSize: 12, color: '#71ac37' }}>热卖时间{rowData.hot_sale_k}~{rowData.hot_sale_j}月</Text>
+                            <TouchableWithoutFeedback
+                                onPress={() => Animated.timing(
+                                    animated,
+                                    {
+                                        toValue: -translateHeight,
+                                        duration: 200,
+                                    },
+                                ).start()}
+                            >
+                                <Ionicons
+                                    name="ios-more"
+                                    size={26}
+                                    color="#999999"
+                                />
+                            </TouchableWithoutFeedback>
+                        </View>
+                    </View>
+
+                    <Animated.View
+                        style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { transform: [{ translateY: animated, }] }]}>
+                        <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(113,172,55,0.9)' }}><Text style={{ color: '#fff' }}>查看详情</Text></View>
+                        <View style={{ padding: 10, backgroundColor: '#fff' }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
+                    </Animated.View>
+                </View>
+            </TouchableWithoutFeedback>
         )
 
     }
@@ -126,7 +178,7 @@ class FruitList extends Component<any, any> {
         return (
             <ListView
                 dataSource={fruitlistStore.fruitList}
-                renderRow={this._renderRow}
+                renderRow={(val) => this._renderRow(val, this)}
                 onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this._animateOpacity } } }])}
                 //renderSectionHeader={this._renderSectionHeader}
                 contentContainerStyle={contentStyles.list}
@@ -173,7 +225,7 @@ class FruitList extends Component<any, any> {
         )
     }
 }
-const deviceWidth = Dimensions.get('window').width;
+
 const contentStyles = StyleSheet.create({
     sectionHeader: {
         paddingTop: 60,
@@ -201,14 +253,16 @@ const contentStyles = StyleSheet.create({
         justifyContent: 'center',
         // padding: 5,
         // margin: 3,
-        width: deviceWidth * 0.5,
-        height: 200,
+        padding: 10,
+        width: DEVICE_WIDTH * 0.5,
+        // height: 200,
         backgroundColor: '#fff',
-        alignItems: 'center',
-        borderColor:'#f6f6f6',
-        borderWidth:2
-        
-      
+        // alignItems: 'center',
+        borderColor: '#f6f6f6',
+        borderWidth: 2,
+        position: 'relative'
+
+
     },
 })
 
