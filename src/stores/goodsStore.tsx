@@ -1,4 +1,4 @@
-import { observable, action, autorun, computed } from 'mobx';
+import { observable, action, autorun, computed, runInAction } from 'mobx';
 import {
     bannerApi,
     newsApi,
@@ -9,6 +9,14 @@ import {
 import { domain } from '../configs/index';
 import tools from '../utils/tools.js';
 import axios from 'axios';
+import { AsyncStorage } from 'react-native';
+import RNFetchBlob from 'react-native-fetch-blob'
+
+const IMG_LIST_KEY = '@Goodstore:imglist';
+const SCROLL_LIST_KEY = '@Goodstore:scrollList';
+const RECOMMEND_LIST_KEY = '@Goodstore:recommendList';
+const NATIONAL_LIST_KEY = '@Goodstore:nationalList';
+const COUNTRY_FRUIT_LIST_KEY = '@Goodstore:CountryFruitList';
 
 class GoodStore {
     @observable imgList = new Array(0);
@@ -18,7 +26,30 @@ class GoodStore {
     @observable countryList = new Array(0);
     @observable refreshing = false;
 
+    @observable data = '';
+    @observable path = '';
     constructor() {
+        this.test();
+
+    }
+
+    @action test() {
+
+        // RNFetchBlob.config({
+        //     fileCache: true
+        // })
+        //     .fetch('GET', 'http://og1rr0484.bkt.clouddn.com/2016-11-12_5826dae45bb51.jpg')
+        //     .then((res) => {
+        //         // remove cached file from storage
+        //         // res.flush()
+
+        //     });
+        // RNFetchBlob.fs.readFile('/var/mobile/Containers/Data/Application/8396F5A5-7CEA-488B-AF3F-82B146BBDF9D/Documents/RNFetchBlob_tmp/RNFetchBlobTmp_1e8cd38b-02b8-443f-8615-2562a005ae08', 'base64')
+        //     .then(action((data: string) => {
+        //         this.data = data;
+
+        //     }))
+
 
     }
 
@@ -39,61 +70,115 @@ class GoodStore {
         return axios.post(domain + nationListApi, tools.parseParam({ page: 1, len: 3 }))
     }
 
-    @action getCountryFruitList() {
-        this.nationalList.forEach((item, idx) => {
-            axios.post(domain + fruitListApi, tools.parseParam({ page: 1, len: 8, type: 1, nation_id: item.id }))
-                .then(action('getCountryFruitList', (response: any) => {
-                    this.refreshing = false;
-                    if (response.data.code === 'SUCCESS') {
-                        this.countryList.push(response.data.data);
+    @action getCountryFruitList = async () => {
+        await this.nationalList.forEach(async (item, idx) => {
+            try {
+                const responseData = await axios.post(domain + fruitListApi, tools.parseParam({ page: 1, len: 8, type: 1, nation_id: item.id }))
+                runInAction('setCountryFruitList', () => {
+                    if (responseData.data.code === 'SUCCESS') {
+                        this.countryList.push(responseData.data.data);
                     } else {
                         this.countryList = [];
                     }
-
-                }))
-        });
-
-
-    }
-
-    @action init() {
-        this.refreshing = true;
-        axios.all([this.getBanner(), this.getNews(), this.getRecommandList(), this.getNationalList()])
-            .then(action('init', (acctArray?: any, perms?: any) => {
-                acctArray.forEach((responseData: any, idx: number) => {
-                    switch (idx) {
-                        case 0:
-                            this.imgList = responseData.data.status === 1 ? responseData.data.data : [];
-                            break;
-                        case 1:
-                            this.scrollList = responseData.data.code === "SUCCESS" ? responseData.data.data : [];
-                            break;
-                        case 2:
-                            this.recommendList = responseData.data.code === "SUCCESS" ? responseData.data.data : [];
-                            break;
-                        case 3:
-                            if (responseData.data.code === 'SUCCESS') {
-                                this.nationalList = responseData.data.data.slice(0, 3);
-                                this.getCountryFruitList();
-                            } else {
-                                this.nationalList = [];
-                                this.refreshing = false;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    AsyncStorage.setItem(COUNTRY_FRUIT_LIST_KEY, JSON.stringify(this.countryList));
 
                 })
-            }), (error) => {
-                // Logs "foo" everytime
-                console.log(error.message)
-            })
-
+            } catch (error) {
+                console.log(error);
+            }
+        });
     }
 
-    onRefresh() {
-        this.init();
+    @action init = async () => {
+        try {
+            const value = await AsyncStorage.getItem('@Goodstore:imglist');
+
+            if (value !== null) {
+                AsyncStorage.multiGet([IMG_LIST_KEY, SCROLL_LIST_KEY, RECOMMEND_LIST_KEY, NATIONAL_LIST_KEY, COUNTRY_FRUIT_LIST_KEY], (err, stores: any) => {
+                    stores.map((result: any, i: number, store: any) => {
+                        let key = store[i][0];
+                        let value = JSON.parse(store[i][1]);
+                        runInAction('set local to state', () => {
+                            switch (key) {
+                                case IMG_LIST_KEY:
+                                    this.imgList = value;
+                                    break;
+                                case SCROLL_LIST_KEY:
+                                    this.scrollList = value;
+                                    break;
+                                case RECOMMEND_LIST_KEY:
+                                    this.recommendList = value;
+                                    break;
+                                case NATIONAL_LIST_KEY:
+                                    this.nationalList = value;
+                                    break;
+                                case COUNTRY_FRUIT_LIST_KEY:
+                                    this.countryList = value;
+                                    break;
+
+                            }
+
+                        })
+                    });
+                });
+
+            } else {
+                this.onRefresh();
+            }
+
+
+        } catch (error) {
+            console.log(error);
+            // Error retrieving data
+        }
+    }
+
+    @action setToLocalStorage = async () => {
+        const responseData = await axios.all([this.getBanner(), this.getNews(), this.getRecommandList(), this.getNationalList()]);
+        responseData.forEach((responseData: any, idx: number) => {
+            runInAction('init state', () => {
+
+                switch (idx) {
+                    case 0:
+                        this.imgList = responseData.data.status === 1 ? responseData.data.data : [];
+                        break;
+                    case 1:
+                        this.scrollList = responseData.data.code === "SUCCESS" ? responseData.data.data : [];
+                        break;
+                    case 2:
+                        this.recommendList = responseData.data.code === "SUCCESS" ? responseData.data.data : [];
+                        break;
+                    case 3:
+                        if (responseData.data.code === 'SUCCESS') {
+                            this.nationalList = responseData.data.data.slice(0, 3);
+                            this.getCountryFruitList();
+                        } else {
+                            this.nationalList = [];
+                        }
+                        this.refreshing = false;
+                        break;
+                    default:
+                        break;
+                }
+            })
+        });
+
+        const storageArr = [
+            [IMG_LIST_KEY, JSON.stringify(this.imgList)],
+            [SCROLL_LIST_KEY, JSON.stringify(this.scrollList)],
+            [RECOMMEND_LIST_KEY, JSON.stringify(this.recommendList)],
+            [NATIONAL_LIST_KEY, JSON.stringify(this.nationalList)],
+        ]
+
+        AsyncStorage.multiSet(storageArr, (error) => {
+            console.log(error)
+        })
+    }
+
+
+    @action onRefresh() {
+        this.refreshing = true;
+        this.setToLocalStorage();
     }
 
 

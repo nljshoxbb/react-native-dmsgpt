@@ -18,6 +18,7 @@ import { observable, useStrict } from 'mobx';
 import { Provider, observer, inject } from 'mobx-react';
 import Swiper from 'react-native-swiper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { CachedImage } from "react-native-img-cache";
 import { styles } from './styles';
 
 import MyStatusBar from '../../../components/MyStatusBar';
@@ -94,20 +95,22 @@ class FruitList extends Component<any, any> {
     }
 
     _renderRow(rowData: any, context: any) {
-        console.log(rowData)
+
         // + '?imageView2/2/w/130/h/130/interlace/1' 
 
         let animated = new Animated.Value(0);
+        let opacitytranslate = new Animated.Value(0);
         const width = ip5 ? 140 : 160;
-        const translateHeight = width - 40;
+        const translateHeight = width - 15;
+
         return (
             <TouchableWithoutFeedback
                 onPress={() => context.props.navigation.navigate('Article', { id: rowData.id })}>
                 <View style={contentStyles.row}>
                     <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                        <Image
-                            source={{ uri: rowData.listpic }}
+                        <CachedImage
                             style={{ height: translateHeight, width: width }}
+                            source={{ uri: rowData.listpic + `?imageView2/2/w/${width * 3}/h/${translateHeight * 3}/interlace/1` }}
                         />
                     </View>
 
@@ -120,13 +123,24 @@ class FruitList extends Component<any, any> {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={{ fontSize: 12, color: '#71ac37' }}>热卖时间{rowData.hot_sale_k}~{rowData.hot_sale_j}月</Text>
                             <TouchableWithoutFeedback
-                                onPress={() => Animated.timing(
-                                    animated,
-                                    {
-                                        toValue: -translateHeight,
-                                        duration: 200,
-                                    },
-                                ).start()}
+                                onPress={() => {
+                                    Animated.timing(
+                                        animated,
+                                        {
+                                            toValue: -translateHeight,
+                                            duration: 200,
+                                        },
+                                    ).start()
+
+                                    Animated.timing(
+                                        opacitytranslate,
+                                        {
+                                            toValue: 1,
+                                            duration: 200,
+                                        },
+
+                                    ).start()
+                                }}
                             >
                                 <Ionicons
                                     name="ios-more"
@@ -138,12 +152,13 @@ class FruitList extends Component<any, any> {
                     </View>
 
                     <Animated.View
-                        style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { transform: [{ translateY: animated, }] }]}>
+                        useNativeDriver
+                        style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { opacity: opacitytranslate, transform: [{ translateY: animated, }] }]}>
                         <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(113,172,55,0.9)' }}><Text style={{ color: '#fff' }}>查看详情</Text></View>
-                        <View style={{ padding: 10, backgroundColor: '#fff' }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
+                        <View style={{ padding: 10, backgroundColor: 'rgba(240,240,240,0.9)', flex: 1 }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
                     </Animated.View>
                 </View>
-            </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback >
         )
 
     }
@@ -185,7 +200,7 @@ class FruitList extends Component<any, any> {
                 renderHeader={() => (
                     <View>
                         <Swiper
-                            height={160}
+                            height={180}
                             autoplay
                             activeDotColor='green'
                             dot={<View style={styles.dot} />}
@@ -193,11 +208,10 @@ class FruitList extends Component<any, any> {
                             {goodsStore.imgList.map((item: any) => {
                                 return (
                                     <View key={item.id}>
-                                        <Image
-                                            source={{ uri: item.imgurl }}
-                                            style={{ height: 160 }}
+                                        <CachedImage
                                             resizeMode="cover"
-
+                                            style={{ height: 180 }}
+                                            source={{ uri: item.imgurl + `?imageView2/2/w/${DEVICE_WIDTH*5}/interlace/1` }}
                                         />
                                     </View>
                                 )
@@ -208,7 +222,7 @@ class FruitList extends Component<any, any> {
                 )}
                 initialListSize={10}
                 pageSize={4}
-                scrollEventThrottle={16}
+                // scrollEventThrottle={16}
                 refreshControl={
                     <RefreshControl
                         refreshing={goodsStore.refreshing}
@@ -260,9 +274,7 @@ const contentStyles = StyleSheet.create({
         // alignItems: 'center',
         borderColor: '#f6f6f6',
         borderWidth: 2,
-        position: 'relative'
-
-
+        position: 'relative',
     },
 })
 

@@ -17,6 +17,7 @@ import Button from 'antd-mobile/lib/button';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
+import { CachedImage, ImageCache } from "react-native-img-cache";
 import Swiper from 'react-native-swiper';
 import { observable, useStrict } from 'mobx';
 import { Provider, observer } from 'mobx-react';
@@ -29,14 +30,18 @@ import Article from './article';
 import MyStatusBar from '../../components/MyStatusBar';
 
 const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) => {
+    const observer = (path: string) => {
+        console.log(`path of the image in the cache: ${path}`);
+    };
+
+
     return (
         <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { id: rowData.id })}>
             <View style={{ width: 100, alignItems: 'center', justifyContent: 'center', padding: 5 }}  >
-                <Image
-                    source={{ uri: rowData.listpic + '?imageView2/2/w/70/h/70/interlace/1' }}
-                    style={{ height: 70, width: 70 }}
+                <CachedImage
                     resizeMode="cover"
-
+                    style={{ height: 70, width: 70 }}
+                    source={{ uri: rowData.listpic + '?imageView2/2/w/150/h/150/interlace/1' }}
                 />
                 <Text style={{ padding: 10 }}>{rowData.title}</Text>
                 <Text style={[commonStyles.grayColor, { fontSize: 12 }]}>{rowData.intro.length > 10 ? rowData.intro.slice(0, 10) : rowData.intro}...</Text>
@@ -92,6 +97,7 @@ class GoodsIndexScreen extends Component<any, any> {
 
     _renderCountry() {
         const { countryList } = this.props.goodsStore;
+
         let countryArr = [
             {
                 titleEn: "Malaysia",
@@ -119,7 +125,9 @@ class GoodsIndexScreen extends Component<any, any> {
 
 
         if (countryList.length != 0) {
+
             countryList.forEach((item: any, idx: number) => {
+
                 if (!item) {
                     item = [];
                 }
@@ -135,7 +143,7 @@ class GoodsIndexScreen extends Component<any, any> {
 
             return (
                 <View style={{ position: 'relative' }} key={idx}>
-                    <Image
+                    <CachedImage
                         style={{ height: 242, width: null }}
                         source={itemData.img}
                         resizeMode='cover'
@@ -214,7 +222,7 @@ class GoodsIndexScreen extends Component<any, any> {
                         />}
                 >
                     <Swiper
-                        height={160}
+                        height={180}
                         autoplay
                         activeDotColor='green'
                         dot={<View style={styles.dot} />}
@@ -222,11 +230,10 @@ class GoodsIndexScreen extends Component<any, any> {
                         {goodsStore.imgList.map((item: any) => {
                             return (
                                 <View key={item.id}>
-                                    <Image
-                                        source={{ uri: item.imgurl }}
-                                        style={{ height: 160 }}
+                                    <CachedImage
+                                        style={{ height: 180 }}
                                         resizeMode="cover"
-
+                                        source={{ uri: item.imgurl }}
                                     />
                                 </View>
                             )
@@ -297,6 +304,7 @@ class GoodsIndexScreen extends Component<any, any> {
                                     style={styles.bottomImage}
                                     source={item.img}
                                 />
+
                                 <Text style={styles.bottomTitle}>{item.title}</Text>
                                 {width == 320 ? <Text /> : <Text style={styles.bottomText}>{item.subTitle}</Text>}
                             </View>

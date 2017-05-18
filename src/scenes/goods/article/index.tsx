@@ -39,7 +39,7 @@ class Article extends Component<any, any> {
 
 
     render() {
-        const { article } = this.props.articleStore;
+        const { article, loading } = this.props.articleStore;
         const HTML = `
                 <!DOCTYPE html>\n
                 <html>
@@ -84,14 +84,17 @@ class Article extends Component<any, any> {
 
         return (
 
-            <View style={{ flex: 1,paddingTop:64}}>
-                <WebView
+            <View style={{ flex: 1, paddingTop: 64 }}>
+                {!loading ? <WebView
                     source={{ html: HTML }}
                     style={{ height: 1000 }}
                     scalesPageToFit={true}
-                    
                 >
-                </WebView>
+                </WebView> :
+                    <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <ActivityIndicator />
+                    </View>}
+
             </View>
 
 

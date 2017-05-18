@@ -53,18 +53,18 @@ export const styles = StyleSheet.create({
         marginRight: 10
     },
     hotSale: {
-        borderTopWidth: 15,
+        borderTopWidth: 10,
         borderColor: '#f6f6f6',
         paddingTop: 20,
-        paddingBottom: 20,
-        borderBottomWidth: 15,
+        paddingBottom: 10,
+        borderBottomWidth: 10,
         backgroundColor: '#fff'
     },
     hotSaletitle: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingBottom: 20
+        paddingBottom: 15
     },
     titleDot: {
         height: 6,

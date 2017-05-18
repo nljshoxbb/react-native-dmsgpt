@@ -17,7 +17,8 @@ const dataSource = new ListView.DataSource({
 });
 
 class fruitlistStore {
-    @observable fruitList = dataSource
+    @observable fruitList = dataSource;
+    @observable loading = true;
 
     constructor() {
 
@@ -26,11 +27,13 @@ class fruitlistStore {
 
 
     @action getFruitList() {
+       
         axios.post(domain + fruitListApi, tools.parseParam({ page: 1, len: 30, type: 1, refreshing: 1 }))
             .then(action('getFruitList', (response: any) => {
                 if (response.data.code === 'SUCCESS') {
                     const dataBlob = response.data.data;
                     this.fruitList = dataSource.cloneWithRowsAndSections([dataBlob]);
+                    this.loading = false;
 
                 }
             }))

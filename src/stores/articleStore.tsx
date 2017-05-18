@@ -13,17 +13,18 @@ import axios from 'axios';
 
 class GoodStore {
     @observable article = {};
-
+    @observable loading = true;
     constructor() {
 
     }
 
     @action getArticle(id: string) {
+        this.loading = true
         axios.get(domain + articleApi + "?id=" + id)
             .then(action('getArticle', (response: any) => {
                 if (response.data.code === 'SUCCESS') {
-                    console.log(response.data.data);
-                    this.article = response.data.data
+                    this.article = response.data.data;
+                    this.loading = false;
                 }
             }))
             .catch(function (error) {

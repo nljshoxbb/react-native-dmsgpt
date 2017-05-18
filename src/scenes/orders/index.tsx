@@ -3,12 +3,14 @@ import {
     Text,
     View,
     Animated,
-    Easing
+    Easing,
+    Image
 } from 'react-native';
 import { commonStyles } from '../style';
+import { observable, useStrict } from 'mobx';
+import { Provider, observer } from 'mobx-react';
 
-
-
+@observer(['goodsStore'])
 class Order extends Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -31,10 +33,14 @@ class Order extends Component<any, any> {
 
 
     render() {
+
         const slideStyle = this.state.slide.getTranslateTransform();
         return (
             <Animated.View style={slideStyle}>
-                <View style={{ width: 50, height: 50, backgroundColor: 'red' }}></View>
+                <View style={{ width: 50, height: 50, }}>
+                    <Image source={{ uri: 'data:image/png;base64,' + this.props.goodsStore.data }} style={{ width: 250, height: 250, }} />
+                </View>
+                <Text selectable>{this.props.goodsStore.path}</Text>
             </Animated.View>
 
         );
