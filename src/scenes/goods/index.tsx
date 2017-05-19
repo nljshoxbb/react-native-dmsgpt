@@ -16,25 +16,27 @@ import ActivityIndicator from 'antd-mobile/lib/activity-indicator';
 import Button from 'antd-mobile/lib/button';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
+import { StackNavigator, TabNavigator, DrawerNavigator, addNavigationHelpers } from 'react-navigation';
 import { CachedImage, ImageCache } from "react-native-img-cache";
 import Swiper from 'react-native-swiper';
-import { observable, useStrict } from 'mobx';
+import { observable, useStrict, toJS } from 'mobx';
 import { Provider, observer } from 'mobx-react';
+
+import MyStatusBar from '../../components/MyStatusBar';
+import Banner from '../../components/Banner';
 
 import { commonStyles } from '../style';
 import { styles } from './styles';
-import FruitList from './fruitList';
-import Article from './article';
 
-import MyStatusBar from '../../components/MyStatusBar';
+const HEADER_MAX_HEIGHT = 300;
+const HEADER_MIN_HEIGHT = Platform.OS === 'ios' ? 60 : 73;
+const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
+//横向滑动
 const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) => {
     const observer = (path: string) => {
         console.log(`path of the image in the cache: ${path}`);
     };
-
-
     return (
         <TouchableWithoutFeedback onPress={() => navigation.navigate('Article', { id: rowData.id })}>
             <View style={{ width: 100, alignItems: 'center', justifyContent: 'center', padding: 5 }}  >
@@ -50,9 +52,196 @@ const RowItem = ({ rowData, navigation }: { rowData?: any, navigation: any }) =>
     )
 }
 
-const HEADER_MAX_HEIGHT = 300;
-const HEADER_MIN_HEIGHT = Platform.OS === 'ios' ? 60 : 73;
-const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+// 
+const CircleItems = ({ navigation }: { navigation?: any }) => {
+    return (
+        <View style={styles.circleWrap}>
+            <View style={styles.circleBox}>
+                <View style={[styles.circle]}>
+                    <Image source={require('../../../assets/shop-car3x.png')} style={{ height: 50, width: 50 }}></Image>
+                </View>
+                <Text style={{ fontSize: 12 }}>采购入口</Text>
+            </View>
+            <View style={styles.circleBox}>
+                <View style={[styles.circle]}>
+                    <Image source={require('../../../assets/pre3x.png')} style={{ height: 50, width: 50 }}></Image>
+                </View>
+                <Text style={{ fontSize: 12 }}>预定专区</Text>
+            </View>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('FruitList')}>
+                <View style={styles.circleBox} >
+                    <View style={[styles.circle]}>
+                        <Image source={require('../../../assets/fru3x.png')} style={{ height: 50, width: 50 }}></Image>
+                    </View>
+                    <Text style={{ fontSize: 12 }}>大观园</Text>
+                </View>
+            </TouchableWithoutFeedback>
+            <View style={styles.circleBox}>
+                <View style={[styles.circle]}>
+                    <Image source={require('../../../assets/advice3x.png')} style={{ height: 50, width: 50 }}></Image>
+                </View>
+                <Text style={{ fontSize: 12 }}>我建议</Text>
+            </View>
+        </View>
+    )
+}
+
+const CountryItems = ({ goodsStore, navigation }: { navigation: any, goodsStore: any }) => {
+    const { countryList } = goodsStore;
+
+    let countryArr = [
+        {
+            titleEn: "Malaysia",
+            titleCn: "马来西亚",
+            desc: '一年四季都可以吃到各式各样的热带水果',
+            img: require(`../../../assets/Malaysia1.jpg`),
+            fruitArr: []
+
+        },
+        {
+            titleEn: "Thailand",
+            titleCn: "泰国",
+            desc: '“水果王国”果实天然新鲜种类繁多',
+            img: require(`../../../assets/Thailand1.jpg`),
+            fruitArr: []
+        },
+        {
+            titleEn: "Vietnam",
+            titleCn: "越南",
+            desc: '温暖湿润的天气成就了水果中的“优质生”',
+            img: require(`../../../assets/Vietnam1.jpg`),
+            fruitArr: []
+        }
+    ];
+
+    if (countryList.length != 0) {
+        countryList.forEach((item: any, idx: number) => {
+            if (!item) {
+                item = [];
+            }
+            if (countryArr[idx]) {
+                countryArr[idx].fruitArr = item;
+            }
+        })
+    }
+
+    return (
+        <View>
+            {countryArr.map((itemData, idx) => {
+                return (
+                    <View style={{ position: 'relative' }} key={idx}>
+                        <CachedImage
+                            style={{ height: 242, width: null }}
+                            source={itemData.img}
+                            resizeMode='cover'
+                        />
+                        <View style={styles.countryTextBox}>
+                            <Text style={[styles.countryText, { fontSize: 14 }]}>{itemData.titleEn}</Text>
+                            <Text style={[styles.countryText, { fontSize: 21, fontWeight: "800" }]}>{itemData.titleCn}</Text>
+                            <Text style={[styles.countryText, { fontSize: 16 }]}>{itemData.desc}</Text>
+                        </View>
+                        <View style={styles.countryImageBox} >
+                            <ScrollView
+                                showsHorizontalScrollIndicator={false}
+                                horizontal
+                            >
+                                {
+                                    itemData.fruitArr.map((rowData: any) => {
+                                        return (
+                                            <RowItem key={rowData.id} rowData={rowData} navigation={navigation} />
+                                        )
+                                    })
+                                }
+
+                            </ScrollView>
+                        </View>
+                        <View style={styles.countryBottomTitle}>
+                            <Text style={[{ fontSize: 16, color: '#999999' }]}>查看更多 </Text>
+                            <Ionicons name="ios-arrow-dropright" size={25} color="#cccccc" />
+                        </View>
+                    </View>
+                )
+            })}
+        </View>
+    )
+
+
+}
+
+const BottomItems = ({ width }: { width?: any }) => {
+    const bottomArray = [
+        { img: require('../../../assets/bottom1.png'), title: "东盟原产地直购", subTitle: '100% 原产地直购保证' },
+        { img: require('../../../assets/bottom2.png'), title: "会员权益", subTitle: '会员升级 尊享特权' },
+        { img: require('../../../assets/bottom3.png'), title: "极速送达", subTitle: '专属物流 全程把控' }
+    ];
+    return (
+        <View style={styles.bottomWrap}>
+            {bottomArray.map((item: any, idx: number) => (
+                <View style={styles.bottomBox} key={idx}>
+                    <Image
+                        style={styles.bottomImage}
+                        source={item.img}
+                    />
+
+                    <Text style={styles.bottomTitle}>{item.title}</Text>
+                    {width == 320 ? <Text /> : <Text style={styles.bottomText}>{item.subTitle}</Text>}
+                </View>
+            ))}
+        </View>
+    )
+}
+
+const NewItems = ({ goodsStore, navigation }: { navigation: any, goodsStore: any }) => {
+    const _rendNews = () => {
+        return goodsStore.scrollList.map((rowData: any, idx: number | string) => {
+            let title = rowData.title.length > 15 ? rowData.title.slice(0, 15) : rowData.title;
+            return (
+                <TouchableWithoutFeedback
+                    key={rowData.id}
+                    onPress={() => navigation.navigate('Article', { name: 'Article', id: rowData.id })}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }} >
+                        <View style={styles.yellowDot}></View>
+                        <Text key={rowData.id} style={styles.scrollText}>{title}...</Text>
+                    </View>
+                </TouchableWithoutFeedback>
+            )
+        })
+    }
+    return (
+        <View style={styles.scrollWrap}>
+            <Text style={{ color: '#51b3f0', fontSize: 21, fontWeight: '800', paddingRight: 20 }}>新鲜事</Text>
+            <View style={{ flex: 1, }}>
+                <Swiper
+                    horizontal={false}
+                    autoplay
+                    height={16}
+                    showsPagination={false}
+                >{_rendNews()}</Swiper>
+            </View>
+        </View>
+    )
+}
+
+const HotsalItems = ({ goodsStore, navigation }: { navigation: any, goodsStore: any }) => {
+    return (
+        <View style={styles.hotSale}>
+            <View style={styles.hotSaletitle}>
+                <View style={styles.titleDot}></View>
+                <Text style={{ fontSize: 16 }}>热卖推荐</Text>
+                <View style={styles.titleDot}></View>
+            </View>
+            <View >
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                >
+                    {goodsStore.recommendList.map((rowData: any) => (<RowItem key={rowData.id} rowData={rowData} navigation={navigation} />))}
+                </ScrollView>
+            </View>
+        </View>
+    )
+}
+
 
 @observer(['goodsStore'])
 class GoodsIndexScreen extends Component<any, any> {
@@ -73,111 +262,6 @@ class GoodsIndexScreen extends Component<any, any> {
         goodsStore.init();
     }
 
-    _rendNews() {
-        return this.props.goodsStore.scrollList.map((rowData: any, idx: number | string) => {
-            let title = rowData.title.length > 15 ? rowData.title.slice(0, 15) : rowData.title;
-            return (
-                <TouchableWithoutFeedback
-                    key={rowData.id}
-                    onPress={() => this.props.navigation.navigate('Article', { name: 'Article', id: rowData.id })}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }} >
-                        <View style={styles.yellowDot}></View>
-                        <Text key={rowData.id} style={styles.scrollText}>{title}...</Text>
-                    </View>
-                </TouchableWithoutFeedback>
-
-            )
-        })
-    }
-
-    _renderRecommand() {
-        return this.props.goodsStore.recommendList.map((rowData: any) => (<RowItem key={rowData.id} rowData={rowData} navigation={this.props.navigation} />))
-    }
-
-
-    _renderCountry() {
-        const { countryList } = this.props.goodsStore;
-
-        let countryArr = [
-            {
-                titleEn: "Malaysia",
-                titleCn: "马来西亚",
-                desc: '一年四季都可以吃到各式各样的热带水果',
-                img: require(`../../../assets/Malaysia1.jpg`),
-                fruitArr: []
-
-            },
-            {
-                titleEn: "Thailand",
-                titleCn: "泰国",
-                desc: '“水果王国”果实天然新鲜种类繁多',
-                img: require(`../../../assets/Thailand1.jpg`),
-                fruitArr: []
-            },
-            {
-                titleEn: "Vietnam",
-                titleCn: "越南",
-                desc: '温暖湿润的天气成就了水果中的“优质生”',
-                img: require(`../../../assets/Vietnam1.jpg`),
-                fruitArr: []
-            }
-        ];
-
-
-        if (countryList.length != 0) {
-
-            countryList.forEach((item: any, idx: number) => {
-
-                if (!item) {
-                    item = [];
-                }
-                if (countryArr[idx]) {
-                    countryArr[idx].fruitArr = item;
-                }
-
-
-            })
-        }
-
-        return countryArr.map((itemData, idx) => {
-
-            return (
-                <View style={{ position: 'relative' }} key={idx}>
-                    <CachedImage
-                        style={{ height: 242, width: null }}
-                        source={itemData.img}
-                        resizeMode='cover'
-                    />
-                    <View style={styles.countryTextBox}>
-                        <Text style={[styles.countryText, { fontSize: 14 }]}>{itemData.titleEn}</Text>
-                        <Text style={[styles.countryText, { fontSize: 21, fontWeight: "800" }]}>{itemData.titleCn}</Text>
-                        <Text style={[styles.countryText, { fontSize: 16 }]}>{itemData.desc}</Text>
-                    </View>
-                    <View style={styles.countryImageBox} >
-                        <ScrollView
-                            showsHorizontalScrollIndicator={false}
-                            horizontal
-                        >
-                            {
-                                itemData.fruitArr.map((rowData: any) => {
-                                    return (
-                                        <RowItem key={rowData.id} rowData={rowData} navigation={this.props.navigation} />
-                                    )
-                                })
-                            }
-
-                        </ScrollView>
-                    </View>
-                    <View style={styles.countryBottomTitle}>
-                        <Text style={[{ fontSize: 16, color: '#999999' }]}>查看更多 </Text>
-                        <Ionicons name="ios-arrow-dropright" size={25} color="#cccccc" />
-                    </View>
-                </View>
-            )
-        })
-
-
-    }
 
     render() {
         const { goodsStore, navigation } = this.props;
@@ -186,24 +270,18 @@ class GoodsIndexScreen extends Component<any, any> {
             outputRange: [0, 0.5, 1],
             extrapolate: 'clamp',
         });
+
         const { height, width } = Dimensions.get('window');
-        const bottomArray = [
-            { img: require('../../../assets/bottom1.png'), title: "东盟原产地直购", subTitle: '100% 原产地直购保证' },
-            { img: require('../../../assets/bottom2.png'), title: "会员权益", subTitle: '会员升级 尊享特权' },
-            { img: require('../../../assets/bottom3.png'), title: "极速送达", subTitle: '专属物流 全程把控' }
-        ];
+        const goodProps = toJS(goodsStore)
 
 
         return (
-            <View style={{ height: height }}>
+            <View style={{ flex: 1 }}>
                 <MyStatusBar
                     backgroundColor='rgba(113,172,55,1)'
                     barStyle="light-content"
                     topBarOpacity={topBarOpacity}
                 />
-                <View style={{ position: 'absolute', width: width, height: 60, backgroundColor: 'red' }}>
-
-                </View>
                 <Animated.ScrollView
                     scrollEventThrottle={1}
                     style={{ flex: 1, backgroundColor: '#f6f6f6' }}
@@ -215,124 +293,22 @@ class GoodsIndexScreen extends Component<any, any> {
                         <RefreshControl
                             refreshing={goodsStore.refreshing}
                             onRefresh={() => goodsStore.onRefresh()}
-                        //style={{ backgroundColor: 'transparent' }}
-                        //colors={['transparent']}
-                        //tintColor='transparent'
-
                         />}
                 >
-                    <Swiper
-                        height={180}
-                        autoplay
-                        activeDotColor='green'
-                        dot={<View style={styles.dot} />}
-                    >
-                        {goodsStore.imgList.map((item: any) => {
-                            return (
-                                <View key={item.id}>
-                                    <CachedImage
-                                        style={{ height: 180 }}
-                                        resizeMode="cover"
-                                        source={{ uri: item.imgurl }}
-                                    />
-                                </View>
-                            )
-                        })}
-                    </Swiper>
 
-                    <View style={styles.circleWrap}>
-                        <View style={styles.circleBox}>
-                            <View style={[styles.circle]}>
-                                <Image source={require('../../../assets/shop-car3x.png')} style={{ height: 50, width: 50 }}></Image>
-                            </View>
-                            <Text style={{ fontSize: 12 }}>采购入口</Text>
-                        </View>
-                        <View style={styles.circleBox}>
-                            <View style={[styles.circle]}>
-                                <Image source={require('../../../assets/pre3x.png')} style={{ height: 50, width: 50 }}></Image>
-                            </View>
-                            <Text style={{ fontSize: 12 }}>预定专区</Text>
-                        </View>
-                        <TouchableWithoutFeedback onPress={() => navigation.navigate('FruitList')}>
-                            <View style={styles.circleBox} >
-                                <View style={[styles.circle]}>
-                                    <Image source={require('../../../assets/fru3x.png')} style={{ height: 50, width: 50 }}></Image>
-                                </View>
-                                <Text style={{ fontSize: 12 }}>大观园</Text>
-                            </View>
-                        </TouchableWithoutFeedback>
-                        <View style={styles.circleBox}>
-                            <View style={[styles.circle]}>
-                                <Image source={require('../../../assets/advice3x.png')} style={{ height: 50, width: 50 }}></Image>
-                            </View>
-                            <Text style={{ fontSize: 12 }}>我建议</Text>
-                        </View>
-                    </View>
+                    <Banner goodsStore={goodProps} />
+                    <CircleItems {...this.props} />
+                    <NewItems {...this.props } goodsStore={goodProps} />
+                    <HotsalItems {...this.props } goodsStore={goodProps} />
+                    <CountryItems {...this.props } goodsStore={goodProps} />
+                    <BottomItems width={width} />
 
-                    <View style={styles.scrollWrap}>
-                        <Text style={{ color: '#51b3f0', fontSize: 21, fontWeight: '800', paddingRight: 20 }}>新鲜事</Text>
-                        <View style={{ flex: 1, }}>
-                            <Swiper
-                                horizontal={false}
-                                autoplay
-                                height={16}
-                                showsPagination={false}
-                            >{this._rendNews()}</Swiper>
-                        </View>
-                    </View>
-
-                    <View style={styles.hotSale}>
-                        <View style={styles.hotSaletitle}>
-                            <View style={styles.titleDot}></View>
-                            <Text style={{ fontSize: 16 }}>热卖推荐</Text>
-                            <View style={styles.titleDot}></View>
-                        </View>
-                        <View >
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                            >
-                                {this._renderRecommand()}
-                            </ScrollView>
-                        </View>
-                    </View>
-                    {this._renderCountry()}
-                    <View style={styles.bottomWrap}>
-                        {bottomArray.map((item: any, idx: number) => (
-                            <View style={styles.bottomBox} key={idx}>
-                                <Image
-                                    style={styles.bottomImage}
-                                    source={item.img}
-                                />
-
-                                <Text style={styles.bottomTitle}>{item.title}</Text>
-                                {width == 320 ? <Text /> : <Text style={styles.bottomText}>{item.subTitle}</Text>}
-                            </View>
-                        ))}
-                    </View>
                 </Animated.ScrollView>
             </View>
-
-
         );
+
+
     }
 }
 
-
-const GoodsIndex = StackNavigator({
-    GoodsIndex: {
-        screen: GoodsIndexScreen
-    },
-    FruitList: {
-        screen: FruitList,
-    },
-    Article: {
-        screen: Article
-    }
-}, {
-        initialRouteName: 'GoodsIndex',
-        headerMode: 'screen'
-
-    });
-
-export default GoodsIndex;
+export default GoodsIndexScreen;

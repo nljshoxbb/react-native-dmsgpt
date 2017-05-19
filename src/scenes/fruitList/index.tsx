@@ -14,14 +14,15 @@ import {
     TouchableWithoutFeedback
 } from 'react-native';
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
-import { observable, useStrict } from 'mobx';
+import { observable, useStrict, toJS } from 'mobx';
 import { Provider, observer, inject } from 'mobx-react';
 import Swiper from 'react-native-swiper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { CachedImage } from "react-native-img-cache";
 import { styles } from './styles';
 
-import MyStatusBar from '../../../components/MyStatusBar';
+import MyStatusBar from '../../components/MyStatusBar';
+import Banner from '../../components/Banner';
 
 const DEVICE_WIDTH = Dimensions.get("window").width;
 
@@ -36,7 +37,6 @@ class FruitList extends Component<any, any> {
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
         const { state } = navigation;
         return ({
-            tabBarVisible: false,
             headerBackTitle: null,
             headerTintColor: '#fff',
             headerStyle: {
@@ -65,7 +65,6 @@ class FruitList extends Component<any, any> {
 
     componentDidMount() {
         this.props.fruitlistStore.getFruitList();
-
     }
 
 
@@ -75,11 +74,6 @@ class FruitList extends Component<any, any> {
         const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
         this.props.navigation.setParams({
-            // animatedValue: this._animateValue.interpolate({
-            //     inputRange: [0, HEADER_SCROLL_DISTANCE],
-            //     outputRange: [HEADER_MIN_HEIGHT, HEADER_MAX_HEIGHT],
-            //     extrapolate: 'clamp'
-            // }),
             animateOpacity: this._animateOpacity.interpolate({
                 inputRange: [0, 160],
                 outputRange: [0, 1],
@@ -88,11 +82,6 @@ class FruitList extends Component<any, any> {
         })
     }
 
-
-
-    componentWillUnmount() {
-        // console.log('componentWillUnmount');
-    }
 
     _renderRow(rowData: any, context: any) {
 
@@ -189,35 +178,15 @@ class FruitList extends Component<any, any> {
 
     render() {
         const { goodsStore, fruitlistStore } = this.props;
-
+        const goodProps = toJS(goodsStore);
         return (
             <ListView
                 dataSource={fruitlistStore.fruitList}
                 renderRow={(val) => this._renderRow(val, this)}
                 onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this._animateOpacity } } }])}
-                //renderSectionHeader={this._renderSectionHeader}
                 contentContainerStyle={contentStyles.list}
                 renderHeader={() => (
-                    <View>
-                        <Swiper
-                            height={180}
-                            autoplay
-                            activeDotColor='green'
-                            dot={<View style={styles.dot} />}
-                        >
-                            {goodsStore.imgList.map((item: any) => {
-                                return (
-                                    <View key={item.id}>
-                                        <CachedImage
-                                            resizeMode="cover"
-                                            style={{ height: 180 }}
-                                            source={{ uri: item.imgurl + `?imageView2/2/w/${DEVICE_WIDTH*5}/interlace/1` }}
-                                        />
-                                    </View>
-                                )
-                            })}
-                        </Swiper>
-                    </View>
+                    <Banner goodsStore={goodProps} />
 
                 )}
                 initialListSize={10}
@@ -227,10 +196,6 @@ class FruitList extends Component<any, any> {
                     <RefreshControl
                         refreshing={goodsStore.refreshing}
                         onRefresh={() => goodsStore.onRefresh()}
-                    //style={{ backgroundColor: 'transparent' }}
-                    //colors={['transparent']}
-                    //tintColor='transparent'
-
                     />}
             >
             </ListView >

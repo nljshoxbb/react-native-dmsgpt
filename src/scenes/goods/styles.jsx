@@ -1,18 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-    dot: {
-        backgroundColor: '#fff',
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        marginLeft: 3,
-        marginRight: 3,
-        marginTop: 3,
-        marginBottom: 3,
-        borderWidth: 1,
-        borderColor: '#70a938'
-    },
+    
     circleWrap: {
         flexDirection: 'row',
         borderBottomWidth: 1,
@@ -120,7 +109,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#f6f6f6',
         paddingTop: 20,
-        paddingBottom:60
+        paddingBottom:20
     },
     bottomBox: {
         flex: 1,

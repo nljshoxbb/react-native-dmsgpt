@@ -9,8 +9,10 @@ import User from './user';
 import Purchase from './purchase';
 
 import styles from './style';
+import FruitList from './fruitList';
+import Article from './article';
 
-const RouterIndex = TabNavigator({
+const TabIndex = TabNavigator({
     Goods: {
         screen: Goods,
         navigationOptions: () => ({
@@ -52,10 +54,24 @@ const RouterIndex = TabNavigator({
             activeTintColor: '#70a938'
         },
         // animationEnabled: true,
+        tabBarPosition: 'bottom',
         lazy: true,
         initialRouteName: "Goods"
-    })
+    });
+
+
+const RouterIndx = StackNavigator({
+    Root: {
+        screen: TabIndex
+    },
+    FruitList: {
+        screen: FruitList,
+    },
+    Article: {
+        screen: Article
+    }
+})
 
 
 
-export default RouterIndex;
+export default RouterIndx;
