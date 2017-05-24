@@ -87,7 +87,7 @@ const CircleItems = ({ navigation }: { navigation?: any }) => {
 }
 
 const CountryItems = ({ goodsStore, navigation }: { navigation: any, goodsStore: any }) => {
-    const { countryList } = goodsStore;
+    const { countryList, nationalList } = goodsStore;
 
     let countryArr = [
         {
@@ -95,7 +95,8 @@ const CountryItems = ({ goodsStore, navigation }: { navigation: any, goodsStore:
             titleCn: "马来西亚",
             desc: '一年四季都可以吃到各式各样的热带水果',
             img: require(`../../../assets/Malaysia1.jpg`),
-            fruitArr: []
+            fruitArr: [],
+            nation_id: ''
 
         },
         {
@@ -103,14 +104,16 @@ const CountryItems = ({ goodsStore, navigation }: { navigation: any, goodsStore:
             titleCn: "泰国",
             desc: '“水果王国”果实天然新鲜种类繁多',
             img: require(`../../../assets/Thailand1.jpg`),
-            fruitArr: []
+            fruitArr: [],
+            nation_id: ''
         },
         {
             titleEn: "Vietnam",
             titleCn: "越南",
             desc: '温暖湿润的天气成就了水果中的“优质生”',
             img: require(`../../../assets/Vietnam1.jpg`),
-            fruitArr: []
+            fruitArr: [],
+            nation_id: ''
         }
     ];
 
@@ -121,13 +124,20 @@ const CountryItems = ({ goodsStore, navigation }: { navigation: any, goodsStore:
             }
             if (countryArr[idx]) {
                 countryArr[idx].fruitArr = item;
-            }
+
+            };
         })
+
     }
 
     return (
         <View>
-            {countryArr.map((itemData, idx) => {
+            {countryArr.map((itemData: any, idx) => {
+                nationalList.forEach((obj: any, ) => {
+                    if (obj.name == itemData.titleCn) {
+                        itemData.nation_id = obj.id;
+                    }
+                })
                 return (
                     <View style={{ position: 'relative' }} key={idx}>
                         <CachedImage
@@ -155,10 +165,16 @@ const CountryItems = ({ goodsStore, navigation }: { navigation: any, goodsStore:
 
                             </ScrollView>
                         </View>
-                        <View style={styles.countryBottomTitle}>
-                            <Text style={[{ fontSize: 16, color: '#999999' }]}>查看更多 </Text>
-                            <Ionicons name="ios-arrow-dropright" size={25} color="#cccccc" />
-                        </View>
+
+                        <TouchableWithoutFeedback onPress={() => {
+                            navigation.navigate('FruitList', { nation_id: itemData.nation_id, nation_name: itemData.titleCn });
+                        }}>
+                            <View style={styles.countryBottomTitle}>
+                                <Text style={[{ fontSize: 16, color: '#999999' }]}>查看更多</Text>
+                                <Ionicons name="ios-arrow-dropright" size={25} color="#cccccc" />
+                            </View>
+                        </TouchableWithoutFeedback>
+
                     </View>
                 )
             })}

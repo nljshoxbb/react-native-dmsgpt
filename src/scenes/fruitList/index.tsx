@@ -11,7 +11,8 @@ import {
     RefreshControl,
     Dimensions,
     Platform,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    ActivityIndicator
 } from 'react-native';
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
 import { observable, useStrict, toJS } from 'mobx';
@@ -23,6 +24,7 @@ import { styles } from './styles';
 
 import MyStatusBar from '../../components/MyStatusBar';
 import Banner from '../../components/Banner';
+import MySticky from '../../components/MySticky';
 
 const DEVICE_WIDTH = Dimensions.get("window").width;
 
@@ -30,6 +32,8 @@ const ip5 = (Platform.OS === 'ios' && DEVICE_WIDTH == 640) ? true : false;
 
 type _animateValue = null;
 type _animateOpacity = null;
+type _style = {};
+type _animateHeight = null;
 
 @observer(['fruitlistStore', 'goodsStore'])
 class FruitList extends Component<any, any> {
@@ -45,8 +49,6 @@ class FruitList extends Component<any, any> {
                 top: 0,
                 left: 0,
                 right: 0,
-                // height: !state.params ? 0 : state.params.animatedValue,
-                // overflow: 'hidden',
                 height: 60,
                 opacity: !state.params ? 0 : state.params.animateOpacity,
             },
@@ -55,16 +57,29 @@ class FruitList extends Component<any, any> {
     }
     _animateValue = new Animated.Value(0);
     _animateOpacity = new Animated.Value(0);
+    _animateHeight = new Animated.Value(0);
+    _style = {
+        opacity: 0,
+        height: 0,
+    }
     _box = null;
+    @observable animatedOpacity = 0;
+    @observable scrollY = new Animated.Value(0);
     constructor(props: any) {
         super(props);
-        this.state = {
-            scrollY: []
-        }
     }
 
     componentDidMount() {
-        this.props.fruitlistStore.getFruitList();
+        const { fruitlistStore, navigation } = this.props;
+
+        if (navigation.state.params) {
+            const { nation_id, nation_name } = navigation.state.params;
+            fruitlistStore.setNation(nation_id, nation_name);
+        } else {
+            fruitlistStore.setNation();
+        }
+
+        fruitlistStore.getFruitList();
     }
 
 
@@ -74,131 +89,248 @@ class FruitList extends Component<any, any> {
         const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
         this.props.navigation.setParams({
-            animateOpacity: this._animateOpacity.interpolate({
+            animateOpacity: this.scrollY.interpolate({
                 inputRange: [0, 160],
                 outputRange: [0, 1],
                 extrapolate: 'clamp'
             })
-        })
+        });
+
+
     }
 
 
     _renderRow(rowData: any, context: any) {
-
         // + '?imageView2/2/w/130/h/130/interlace/1' 
-
+        const { listType } = context.props.fruitlistStore;
         let animated = new Animated.Value(0);
         let opacitytranslate = new Animated.Value(0);
         const width = ip5 ? 140 : 160;
         const translateHeight = width - 15;
 
-        return (
-            <TouchableWithoutFeedback
-                onPress={() => context.props.navigation.navigate('Article', { id: rowData.id })}>
-                <View style={contentStyles.row}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                        <CachedImage
-                            style={{ height: translateHeight, width: width }}
-                            source={{ uri: rowData.listpic + `?imageView2/2/w/${width * 3}/h/${translateHeight * 3}/interlace/1` }}
-                        />
-                    </View>
-
-                    <View style={{ paddingTop: 10 }}>
-                        <Text style={{ color: '#666666' }}>{rowData.title}</Text>
-                        <View style={{ paddingTop: 7, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={{ fontSize: 12, color: '#999999' }}>产季：{rowData.season}</Text>
-                            <Text style={{ fontSize: 13, color: '#00b6f6' }}>{rowData.producing}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={{ fontSize: 12, color: '#71ac37' }}>热卖时间{rowData.hot_sale_k}~{rowData.hot_sale_j}月</Text>
-                            <TouchableWithoutFeedback
-                                onPress={() => {
-                                    Animated.timing(
-                                        animated,
-                                        {
-                                            toValue: -translateHeight,
-                                            duration: 200,
-                                        },
-                                    ).start()
-
-                                    Animated.timing(
-                                        opacitytranslate,
-                                        {
-                                            toValue: 1,
-                                            duration: 200,
-                                        },
-
-                                    ).start()
-                                }}
-                            >
-                                <Ionicons
-                                    name="ios-more"
-                                    size={26}
-                                    color="#999999"
+        if (listType) {
+            return (
+                <View>
+                    <TouchableWithoutFeedback
+                        onPress={() => context.props.navigation.navigate('Article', { id: rowData.id })}>
+                        <View style={contentStyles.row2}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                <CachedImage
+                                    style={{ height: 100, width: 100 }}
+                                    source={{ uri: rowData.listpic + `?imageView2/2/w/${width * 3}/h/${translateHeight * 3}/interlace/1` }}
                                 />
-                            </TouchableWithoutFeedback>
-                        </View>
-                    </View>
+                            </View>
 
-                    <Animated.View
-                        useNativeDriver
-                        style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { opacity: opacitytranslate, transform: [{ translateY: animated, }] }]}>
-                        <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(113,172,55,0.9)' }}><Text style={{ color: '#fff' }}>查看详情</Text></View>
-                        <View style={{ padding: 10, backgroundColor: 'rgba(240,240,240,0.9)', flex: 1 }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
-                    </Animated.View>
+                            <View style={{ paddingLeft: 20, flex: 1, flexDirection: 'column', justifyContent: 'space-around' }}>
+                                <Text style={{ color: '#666666' }}>{rowData.title}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 13, color: '#00b6f6' }}>{rowData.producing}</Text>
+                                    <Text style={{ fontSize: 12, color: '#999999', paddingLeft: 20 }}>产季：{rowData.season}</Text>
+                                </View>
+                                <Text style={{ fontSize: 12, color: '#999999' }}>保鲜期限：{rowData.refreshing}天</Text>
+                                <Text style={{ fontSize: 12, color: '#71ac37' }}>热卖时间{rowData.hot_sale_k}~{rowData.hot_sale_j}月</Text>
+                            </View>
+                            <View style={{ flexDirection: 'column', justifyContent: 'flex-end' }}>
+                                <TouchableWithoutFeedback
+                                    onPress={() => {
+                                        Animated.timing(
+                                            animated,
+                                            {
+                                                toValue: -translateHeight,
+                                                duration: 200,
+                                            },
+                                        ).start()
+
+                                        Animated.timing(
+                                            opacitytranslate,
+                                            {
+                                                toValue: 1,
+                                                duration: 200,
+                                            },
+
+                                        ).start()
+                                    }}
+                                >
+                                    <Ionicons
+                                        name="ios-more"
+                                        size={26}
+                                        color="#999999"
+                                    />
+                                </TouchableWithoutFeedback>
+                            </View>
+                            <Animated.View
+                                useNativeDriver
+                                style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { opacity: opacitytranslate, transform: [{ translateY: animated, }] }]}>
+                                <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(113,172,55,0.9)' }}><Text style={{ color: '#fff' }}>查看详情</Text></View>
+                                <View style={{ padding: 10, backgroundColor: 'rgba(240,240,240,0.9)', flex: 1 }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
+                            </Animated.View>
+                        </View>
+                    </TouchableWithoutFeedback >
                 </View>
-            </TouchableWithoutFeedback >
-        )
+
+            )
+        } else {
+            return (
+                <TouchableWithoutFeedback
+                    onPress={() => context.props.navigation.navigate('Article', { id: rowData.id })}>
+                    <View style={contentStyles.row}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                            <CachedImage
+                                style={{ height: translateHeight, width: width }}
+                                source={{ uri: rowData.listpic + `?imageView2/2/w/${width * 3}/h/${translateHeight * 3}/interlace/1` }}
+                            />
+                        </View>
+
+                        <View style={{ paddingTop: 10 }}>
+                            <Text style={{ color: '#666666' }}>{rowData.title}</Text>
+                            <View style={{ paddingTop: 7, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 12, color: '#999999' }}>产季：{rowData.season}</Text>
+                                <Text style={{ fontSize: 13, color: '#00b6f6' }}>{rowData.producing}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 12, color: '#71ac37' }}>热卖时间{rowData.hot_sale_k}~{rowData.hot_sale_j}月</Text>
+                                <TouchableWithoutFeedback
+                                    onPress={() => {
+                                        Animated.timing(
+                                            animated,
+                                            {
+                                                toValue: -translateHeight,
+                                                duration: 200,
+                                            },
+                                        ).start()
+
+                                        Animated.timing(
+                                            opacitytranslate,
+                                            {
+                                                toValue: 1,
+                                                duration: 200,
+                                            },
+
+                                        ).start()
+                                    }}
+                                >
+                                    <Ionicons
+                                        name="ios-more"
+                                        size={26}
+                                        color="#999999"
+                                    />
+                                </TouchableWithoutFeedback>
+                            </View>
+                        </View>
+
+                        <Animated.View
+                            useNativeDriver
+                            style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { opacity: opacitytranslate, transform: [{ translateY: animated, }] }]}>
+                            <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(113,172,55,0.9)' }}><Text style={{ color: '#fff' }}>查看详情</Text></View>
+                            <View style={{ padding: 10, backgroundColor: 'rgba(240,240,240,0.9)', flex: 1 }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
+                        </Animated.View>
+                    </View>
+                </TouchableWithoutFeedback >
+            )
+        }
 
     }
 
-    _renderSectionHeader = (sectionData: string, sectionID: string) => {
-        return (
-            <View style={{ paddingTop: 60, }}>
-                <View style={{ backgroundColor: '#fff', flexDirection: 'row', flex: 1 }}>
-                    <View style={[contentStyles.sectionHeaderBox]}>
-                        <Text style={{ paddingRight: 5 }}>不限分类</Text>
-                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                    </View>
-                    <View style={[contentStyles.sectionHeaderBox]}>
-                        <Text style={{ paddingRight: 5 }}>不限产地</Text>
-                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                    </View>
-                    <View style={[contentStyles.sectionHeaderBox]}>
-                        <Text style={{ paddingRight: 5 }}>十大推荐</Text>
-                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingLeft: 20, paddingRight: 20 }}>
-                        <Ionicons name="md-apps" size={28} color="#cccccc" />
-                    </View>
-                </View>
-            </View>
-        );
-    };
+    handleScroll = (event: any) => {
+        // console.log(event.nativeEvent.contentOffset.y)
+        Animated.event([{ nativeEvent: { contentOffset: { y: this.scrollY } } }])(event);
+    }
 
     render() {
         const { goodsStore, fruitlistStore } = this.props;
         const goodProps = toJS(goodsStore);
-        return (
-            <ListView
-                dataSource={fruitlistStore.fruitList}
-                renderRow={(val) => this._renderRow(val, this)}
-                onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: this._animateOpacity } } }])}
-                contentContainerStyle={contentStyles.list}
-                renderHeader={() => (
-                    <Banner goodsStore={goodProps} />
+        const heightTranslate = this.scrollY.interpolate({
+            inputRange: [120, 120.1],
+            outputRange: [0, 40],
+            extrapolate: 'clamp',
+        });
+        const borderBottomWidthTranslate = this.scrollY.interpolate({
+            inputRange: [120, 121],
+            outputRange: [0, 1],
+            extrapolate: 'clamp',
+        });
 
-                )}
-                initialListSize={10}
-                pageSize={4}
-                // scrollEventThrottle={16}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={goodsStore.refreshing}
-                        onRefresh={() => goodsStore.onRefresh()}
-                    />}
-            >
-            </ListView >
+        const listStyle = fruitlistStore.listType ?
+            {
+                flexDirection: 'column',
+
+            } :
+            {
+                justifyContent: 'space-around',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                alignItems: 'flex-start',
+            }
+      
+        return (
+            <View style={{ flex: 1 }}>
+                <MySticky scrollY={this.scrollY}>
+                    <View style={{ backgroundColor: '#fff', flexDirection: 'row', flex: 1 }}>
+                        <View style={[contentStyles.sectionHeaderBox]}>
+                            <Text style={{ paddingRight: 5 }}>不限分类</Text>
+                            <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
+                        </View>
+                        <View style={[contentStyles.sectionHeaderBox]}>
+                            <Text style={{ paddingRight: 5 }}>{fruitlistStore.nation.name ? fruitlistStore.nation.name : "不限产地"}</Text>
+                            <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
+                        </View>
+                        <View style={[contentStyles.sectionHeaderBox]}>
+                            <Text style={{ paddingRight: 5 }}>十大推荐</Text>
+                            <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
+                        </View>
+                        <TouchableWithoutFeedback onPress={() => fruitlistStore.changeListType()}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingLeft: 10, width: 50, paddingRight: 10 }}>
+                                {fruitlistStore.listType ? <Ionicons name="md-apps" size={28} color="#cccccc" /> : <Ionicons name="ios-list" size={28} color="#cccccc" />}
+                            </View>
+                        </TouchableWithoutFeedback>
+
+                    </View>
+                </MySticky>
+                <ListView
+                    dataSource={fruitlistStore.fruitList}
+                    renderRow={(val) => this._renderRow(val, this)}
+                    onScroll={(e) => this.handleScroll(e)}
+                    contentContainerStyle={[listStyle]}
+                    renderHeader={() => (
+                        <View>
+                            <Banner goodsStore={goodProps} />
+                            <View style={{ height: 40 }} >
+                                <View style={{ backgroundColor: '#fff', flexDirection: 'row', flex: 1 }}>
+                                    <View style={[contentStyles.sectionHeaderBox]}>
+                                        <Text style={{ paddingRight: 5 }}>不限分类</Text>
+                                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
+                                    </View>
+                                    <View style={[contentStyles.sectionHeaderBox]}>
+                                        <Text style={{ paddingRight: 5 }}>{fruitlistStore.nation.name ? fruitlistStore.nation.name : "不限产地"}</Text>
+                                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
+                                    </View>
+                                    <View style={[contentStyles.sectionHeaderBox]}>
+                                        <Text style={{ paddingRight: 5 }}>十大推荐</Text>
+                                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
+                                    </View>
+                                    <TouchableWithoutFeedback onPress={() => fruitlistStore.changeListType()}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingLeft: 10, width: 50, paddingRight: 10 }}>
+                                            {fruitlistStore.listType ? <Ionicons name="ios-list" size={28} color="#cccccc" /> : <Ionicons name="md-apps" size={28} color="#cccccc" />}
+                                        </View>
+                                    </TouchableWithoutFeedback>
+                                </View>
+                            </View>
+                        </View>
+
+                    )}
+                    initialListSize={10}
+                    pageSize={4}
+                    // scrollEventThrottle={16}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={goodsStore.refreshing}
+                            onRefresh={() => goodsStore.onRefresh()}
+                        />}
+                >
+
+                </ListView >
+            </View>
+
 
 
         )
@@ -221,13 +353,7 @@ const contentStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    list: {
-        justifyContent: 'space-around',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
 
-    },
     row: {
         justifyContent: 'center',
         // padding: 5,
@@ -241,6 +367,16 @@ const contentStyles = StyleSheet.create({
         borderWidth: 2,
         position: 'relative',
     },
+    row2: {
+
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 10,
+        backgroundColor: '#fff',
+        borderColor: '#f6f6f6',
+        borderWidth: 2,
+        position: 'relative',
+    }
 })
 
 export default FruitList;

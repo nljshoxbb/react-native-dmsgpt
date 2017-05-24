@@ -56,7 +56,7 @@ const TabIndex = TabNavigator({
         // animationEnabled: true,
         tabBarPosition: 'bottom',
         lazy: true,
-        initialRouteName: "Goods"
+        initialRouteName: "Purchase"
     });
 
 

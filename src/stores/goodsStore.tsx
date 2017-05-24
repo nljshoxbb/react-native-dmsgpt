@@ -29,7 +29,6 @@ class GoodStore {
     @observable data = '';
     @observable path = '';
     constructor() {
-        this.test();
 
     }
 
