@@ -5,6 +5,7 @@ import {
     Text,
     StyleSheet
 } from 'react-native';
+import theme from '../style/theme/default.js';
 
 interface Props {
     title?: string | 'title',
@@ -32,13 +33,17 @@ const styles = StyleSheet.create({
     button: {
         height: 44,
         width: 147,
-        backgroundColor: 'rgba(113,172,55,1)',
+        backgroundColor: theme.brand_primary,
         borderRadius: 50,
         padding: 10,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        margin:20
+        margin: 20,
+        shadowColor: theme.brand_primary,
+        shadowOpacity: 0.5,
+        shadowRadius: 7
+
     },
     text: {
         color: '#fff',

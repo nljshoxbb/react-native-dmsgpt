@@ -13,8 +13,9 @@ useStrict(true);
 class App extends Component<any, any> {
     render() {
         return (
-            <Provider {...stores}><ScenesIndex /></Provider>
-
+            <Provider {...stores}>
+                <ScenesIndex />
+            </Provider>
         )
     }
 }

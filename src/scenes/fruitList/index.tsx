@@ -26,6 +26,10 @@ import MyStatusBar from '../../components/MyStatusBar';
 import Banner from '../../components/Banner';
 import MySticky from '../../components/MySticky';
 
+import SelecItem from './SelecItem';
+
+
+import RowItems from './RowItems';
 const DEVICE_WIDTH = Dimensions.get("window").width;
 
 const ip5 = (Platform.OS === 'ios' && DEVICE_WIDTH == 640) ? true : false;
@@ -40,6 +44,7 @@ class FruitList extends Component<any, any> {
 
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
         const { state } = navigation;
+
         return ({
             headerBackTitle: null,
             headerTintColor: '#fff',
@@ -50,7 +55,7 @@ class FruitList extends Component<any, any> {
                 left: 0,
                 right: 0,
                 height: 60,
-                opacity: !state.params ? 0 : state.params.animateOpacity,
+                opacity: (!state.params || state.params.animateOpacity == undefined) ? 0 : state.params.animateOpacity,
             },
 
         })
@@ -99,138 +104,6 @@ class FruitList extends Component<any, any> {
 
     }
 
-
-    _renderRow(rowData: any, context: any) {
-        // + '?imageView2/2/w/130/h/130/interlace/1' 
-        const { listType } = context.props.fruitlistStore;
-        let animated = new Animated.Value(0);
-        let opacitytranslate = new Animated.Value(0);
-        const width = ip5 ? 140 : 160;
-        const translateHeight = width - 15;
-
-        if (listType) {
-            return (
-                <View>
-                    <TouchableWithoutFeedback
-                        onPress={() => context.props.navigation.navigate('Article', { id: rowData.id })}>
-                        <View style={contentStyles.row2}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <CachedImage
-                                    style={{ height: 100, width: 100 }}
-                                    source={{ uri: rowData.listpic + `?imageView2/2/w/${width * 3}/h/${translateHeight * 3}/interlace/1` }}
-                                />
-                            </View>
-
-                            <View style={{ paddingLeft: 20, flex: 1, flexDirection: 'column', justifyContent: 'space-around' }}>
-                                <Text style={{ color: '#666666' }}>{rowData.title}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 13, color: '#00b6f6' }}>{rowData.producing}</Text>
-                                    <Text style={{ fontSize: 12, color: '#999999', paddingLeft: 20 }}>产季：{rowData.season}</Text>
-                                </View>
-                                <Text style={{ fontSize: 12, color: '#999999' }}>保鲜期限：{rowData.refreshing}天</Text>
-                                <Text style={{ fontSize: 12, color: '#71ac37' }}>热卖时间{rowData.hot_sale_k}~{rowData.hot_sale_j}月</Text>
-                            </View>
-                            <View style={{ flexDirection: 'column', justifyContent: 'flex-end' }}>
-                                <TouchableWithoutFeedback
-                                    onPress={() => {
-                                        Animated.timing(
-                                            animated,
-                                            {
-                                                toValue: -translateHeight,
-                                                duration: 200,
-                                            },
-                                        ).start()
-
-                                        Animated.timing(
-                                            opacitytranslate,
-                                            {
-                                                toValue: 1,
-                                                duration: 200,
-                                            },
-
-                                        ).start()
-                                    }}
-                                >
-                                    <Ionicons
-                                        name="ios-more"
-                                        size={26}
-                                        color="#999999"
-                                    />
-                                </TouchableWithoutFeedback>
-                            </View>
-                            <Animated.View
-                                useNativeDriver
-                                style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { opacity: opacitytranslate, transform: [{ translateY: animated, }] }]}>
-                                <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(113,172,55,0.9)' }}><Text style={{ color: '#fff' }}>查看详情</Text></View>
-                                <View style={{ padding: 10, backgroundColor: 'rgba(240,240,240,0.9)', flex: 1 }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
-                            </Animated.View>
-                        </View>
-                    </TouchableWithoutFeedback >
-                </View>
-
-            )
-        } else {
-            return (
-                <TouchableWithoutFeedback
-                    onPress={() => context.props.navigation.navigate('Article', { id: rowData.id })}>
-                    <View style={contentStyles.row}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                            <CachedImage
-                                style={{ height: translateHeight, width: width }}
-                                source={{ uri: rowData.listpic + `?imageView2/2/w/${width * 3}/h/${translateHeight * 3}/interlace/1` }}
-                            />
-                        </View>
-
-                        <View style={{ paddingTop: 10 }}>
-                            <Text style={{ color: '#666666' }}>{rowData.title}</Text>
-                            <View style={{ paddingTop: 7, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 12, color: '#999999' }}>产季：{rowData.season}</Text>
-                                <Text style={{ fontSize: 13, color: '#00b6f6' }}>{rowData.producing}</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 12, color: '#71ac37' }}>热卖时间{rowData.hot_sale_k}~{rowData.hot_sale_j}月</Text>
-                                <TouchableWithoutFeedback
-                                    onPress={() => {
-                                        Animated.timing(
-                                            animated,
-                                            {
-                                                toValue: -translateHeight,
-                                                duration: 200,
-                                            },
-                                        ).start()
-
-                                        Animated.timing(
-                                            opacitytranslate,
-                                            {
-                                                toValue: 1,
-                                                duration: 200,
-                                            },
-
-                                        ).start()
-                                    }}
-                                >
-                                    <Ionicons
-                                        name="ios-more"
-                                        size={26}
-                                        color="#999999"
-                                    />
-                                </TouchableWithoutFeedback>
-                            </View>
-                        </View>
-
-                        <Animated.View
-                            useNativeDriver
-                            style={[{ position: 'absolute', left: 0, right: 0, bottom: -translateHeight, height: translateHeight }, { opacity: opacitytranslate, transform: [{ translateY: animated, }] }]}>
-                            <View style={{ padding: 10, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'rgba(113,172,55,0.9)' }}><Text style={{ color: '#fff' }}>查看详情</Text></View>
-                            <View style={{ padding: 10, backgroundColor: 'rgba(240,240,240,0.9)', flex: 1 }}><Text style={{ fontSize: 14, lineHeight: 17, color: '#666666' }}>{rowData.intro.slice(0, 35)}</Text></View>
-                        </Animated.View>
-                    </View>
-                </TouchableWithoutFeedback >
-            )
-        }
-
-    }
-
     handleScroll = (event: any) => {
         // console.log(event.nativeEvent.contentOffset.y)
         Animated.event([{ nativeEvent: { contentOffset: { y: this.scrollY } } }])(event);
@@ -239,16 +112,6 @@ class FruitList extends Component<any, any> {
     render() {
         const { goodsStore, fruitlistStore } = this.props;
         const goodProps = toJS(goodsStore);
-        const heightTranslate = this.scrollY.interpolate({
-            inputRange: [120, 120.1],
-            outputRange: [0, 40],
-            extrapolate: 'clamp',
-        });
-        const borderBottomWidthTranslate = this.scrollY.interpolate({
-            inputRange: [120, 121],
-            outputRange: [0, 1],
-            extrapolate: 'clamp',
-        });
 
         const listStyle = fruitlistStore.listType ?
             {
@@ -261,66 +124,35 @@ class FruitList extends Component<any, any> {
                 flexWrap: 'wrap',
                 alignItems: 'flex-start',
             }
-      
+
         return (
             <View style={{ flex: 1 }}>
                 <MySticky scrollY={this.scrollY}>
-                    <View style={{ backgroundColor: '#fff', flexDirection: 'row', flex: 1 }}>
-                        <View style={[contentStyles.sectionHeaderBox]}>
-                            <Text style={{ paddingRight: 5 }}>不限分类</Text>
-                            <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                        </View>
-                        <View style={[contentStyles.sectionHeaderBox]}>
-                            <Text style={{ paddingRight: 5 }}>{fruitlistStore.nation.name ? fruitlistStore.nation.name : "不限产地"}</Text>
-                            <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                        </View>
-                        <View style={[contentStyles.sectionHeaderBox]}>
-                            <Text style={{ paddingRight: 5 }}>十大推荐</Text>
-                            <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                        </View>
-                        <TouchableWithoutFeedback onPress={() => fruitlistStore.changeListType()}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingLeft: 10, width: 50, paddingRight: 10 }}>
-                                {fruitlistStore.listType ? <Ionicons name="md-apps" size={28} color="#cccccc" /> : <Ionicons name="ios-list" size={28} color="#cccccc" />}
-                            </View>
-                        </TouchableWithoutFeedback>
-
-                    </View>
+                    <SelecItem {...this.props} />
                 </MySticky>
+
                 <ListView
                     dataSource={fruitlistStore.fruitList}
-                    renderRow={(val) => this._renderRow(val, this)}
+                    renderRow={(val) => {
+                        const obj = {
+                            rowData: val,
+                            context: this,
+                        }
+                        return <RowItems {...obj} />
+                    }}
                     onScroll={(e) => this.handleScroll(e)}
                     contentContainerStyle={[listStyle]}
                     renderHeader={() => (
                         <View>
                             <Banner goodsStore={goodProps} />
                             <View style={{ height: 40 }} >
-                                <View style={{ backgroundColor: '#fff', flexDirection: 'row', flex: 1 }}>
-                                    <View style={[contentStyles.sectionHeaderBox]}>
-                                        <Text style={{ paddingRight: 5 }}>不限分类</Text>
-                                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                                    </View>
-                                    <View style={[contentStyles.sectionHeaderBox]}>
-                                        <Text style={{ paddingRight: 5 }}>{fruitlistStore.nation.name ? fruitlistStore.nation.name : "不限产地"}</Text>
-                                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                                    </View>
-                                    <View style={[contentStyles.sectionHeaderBox]}>
-                                        <Text style={{ paddingRight: 5 }}>十大推荐</Text>
-                                        <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
-                                    </View>
-                                    <TouchableWithoutFeedback onPress={() => fruitlistStore.changeListType()}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingLeft: 10, width: 50, paddingRight: 10 }}>
-                                            {fruitlistStore.listType ? <Ionicons name="ios-list" size={28} color="#cccccc" /> : <Ionicons name="md-apps" size={28} color="#cccccc" />}
-                                        </View>
-                                    </TouchableWithoutFeedback>
-                                </View>
+                                <SelecItem {...this.props} />
                             </View>
                         </View>
 
                     )}
                     initialListSize={10}
                     pageSize={4}
-                    // scrollEventThrottle={16}
                     refreshControl={
                         <RefreshControl
                             refreshing={goodsStore.refreshing}
@@ -330,9 +162,6 @@ class FruitList extends Component<any, any> {
 
                 </ListView >
             </View>
-
-
-
         )
     }
 }

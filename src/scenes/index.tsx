@@ -11,6 +11,9 @@ import Purchase from './purchase';
 import styles from './style';
 import FruitList from './fruitList';
 import Article from './article';
+import Register from './register';
+import Login from './login';
+
 
 const TabIndex = TabNavigator({
     Goods: {
@@ -56,22 +59,33 @@ const TabIndex = TabNavigator({
         // animationEnabled: true,
         tabBarPosition: 'bottom',
         lazy: true,
-        initialRouteName: "Purchase"
+        // initialRouteName: "Purchase"
     });
 
 
 const RouterIndx = StackNavigator({
-    Root: {
-        screen: TabIndex
+    TabIndex: {
+        screen: TabIndex,
+        navigationOptions: ({ navigation }) => ({
+            header: null
+        }),
     },
     FruitList: {
         screen: FruitList,
     },
     Article: {
-        screen: Article
+        screen: Article,
+    },
+    Login: {
+        screen: Login,
+    },
+    Register: {
+        screen: Register
     }
-})
-
+}, {
+        headerMode: 'screen',
+        initialRouteName: "Register"
+    });
 
 
 export default RouterIndx;
