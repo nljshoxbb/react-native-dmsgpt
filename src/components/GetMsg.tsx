@@ -9,7 +9,7 @@ import {
     Toast
 } from 'antd-mobile';
 import {
-    View
+    View,
 } from 'react-native';
 import {
     verifyCodeApi
@@ -37,14 +37,17 @@ class GetMessage extends Component<Props, any> {
 
     }
 
+
     handleGetCode = () => {
         let { phone, verify_code } = this.props;
         const { overtime } = this.state;
         Toast.loading('发送中', 1, () => {
             console.log('加载完成!!!');
         });
-        axios.post(domain + verifyCodeApi, tools.parseParam({ phone: myTrim(phone), verify_code }))
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+        axios.post(domain + verifyCodeApi, tools.parseParam({ phone: myTrim(phone), verify_code: verify_code }))
             .then((response: any) => {
+                console.log(response)
                 if (response.data.code === 'SUCCESS') {
                     const dataBlob = response.data.data;
                     Toast.loading('发送成功', 0.5, () => {
@@ -59,6 +62,7 @@ class GetMessage extends Component<Props, any> {
             .catch(function (error) {
                 console.log(error);
             });
+
 
     }
 
@@ -77,12 +81,12 @@ class GetMessage extends Component<Props, any> {
         return (
             <View>
                 <Button
-                    type={canClick ? "primary" : ''}
-                    className="btn"
+                    type="ghost"
+                    disabled={canClick ? false : true}
                     size="small"
                     loading={false}
-                    onClick={canClick ? this.handleGetCode : ''}
-                >{canClick ? "点击获取验证码" : `${overtime}后可重新发送`}</Button>
+                    onPressIn={canClick ? this.handleGetCode : ''}
+                >{canClick ? "点击获取" : `重新发送(${overtime})`}</Button>
             </View>
         );
     }

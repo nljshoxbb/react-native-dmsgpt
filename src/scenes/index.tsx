@@ -59,11 +59,11 @@ const TabIndex = TabNavigator({
         // animationEnabled: true,
         tabBarPosition: 'bottom',
         lazy: true,
-        // initialRouteName: "Purchase"
+        initialRouteName: "Purchase"
     });
 
 
-const RouterIndx = StackNavigator({
+const AppNavigator = StackNavigator({
     TabIndex: {
         screen: TabIndex,
         navigationOptions: ({ navigation }) => ({
@@ -84,8 +84,8 @@ const RouterIndx = StackNavigator({
     }
 }, {
         headerMode: 'screen',
-        initialRouteName: "Register"
+        initialRouteName: "TabIndex"
     });
 
 
-export default RouterIndx;
+export default AppNavigator;

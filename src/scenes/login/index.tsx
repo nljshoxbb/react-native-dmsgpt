@@ -47,9 +47,7 @@ class Login extends Component<Props, any>{
 
     constructor(props: any) {
         super(props)
-
     }
-
 
     @observable focus = [false, false];
 
@@ -60,7 +58,7 @@ class Login extends Component<Props, any>{
 
     submit() {
         this.props.form.validateFields((error?: any, value?: any) => {
-
+            this.props.profileStore.login(value);
         });
     }
 
@@ -83,6 +81,7 @@ class Login extends Component<Props, any>{
                                 initialValue: '',
                                 onChange: (val: any) => profileStore.handleInput(val, 'phone'),
                             }) }
+                            type="number"
                             clear
                             placeholder='请输入手机号码'
                             onFocus={() => { this.handleFocus(0) }}

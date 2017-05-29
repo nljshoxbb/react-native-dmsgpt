@@ -31,27 +31,6 @@ class GoodStore {
     constructor() {
 
     }
-
-    @action test() {
-
-        // RNFetchBlob.config({
-        //     fileCache: true
-        // })
-        //     .fetch('GET', 'http://og1rr0484.bkt.clouddn.com/2016-11-12_5826dae45bb51.jpg')
-        //     .then((res) => {
-        //         // remove cached file from storage
-        //         // res.flush()
-
-        //     });
-        // RNFetchBlob.fs.readFile('/var/mobile/Containers/Data/Application/8396F5A5-7CEA-488B-AF3F-82B146BBDF9D/Documents/RNFetchBlob_tmp/RNFetchBlobTmp_1e8cd38b-02b8-443f-8615-2562a005ae08', 'base64')
-        //     .then(action((data: string) => {
-        //         this.data = data;
-
-        //     }))
-
-
-    }
-
     getBanner() {
         return axios.get(domain + bannerApi)
     }
