@@ -19,8 +19,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { StackNavigator, TabNavigator, DrawerNavigator, addNavigationHelpers } from 'react-navigation';
 import { CachedImage, ImageCache } from "react-native-img-cache";
 import Swiper from 'react-native-swiper';
-import { observable, useStrict, toJS } from 'mobx';
-import { Provider, observer } from 'mobx-react';
+import { connect } from 'dva';
 
 import MyStatusBar from '../../components/MyStatusBar';
 import Banner from '../../components/Banner';
@@ -39,28 +38,22 @@ const HEADER_MIN_HEIGHT = Platform.OS === 'ios' ? 60 : 73;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 
-@observer(['goodsStore'])
-class GoodsIndexScreen extends Component<any, any> {
+@connect(({ main }) => ({ main }))
+class IndexScreen extends Component<any, any> {
     constructor(props: any) {
         super(props);
         this.state = {
             scrollY: new Animated.Value(0),
         };
     }
-    static navigationOptions = ({ navigation }: { navigation?: any }) => {
-        return ({
-            // header: null
-        })
-    }
-
-    componentDidMount() {
-        const { goodsStore } = this.props;
-        goodsStore.init();
-    }
-
 
     render() {
-        const { goodsStore, navigation } = this.props;
+        const {
+            navigation,
+            main,
+            dispatch
+             } = this.props;
+
         const topBarOpacity = this.state.scrollY.interpolate({
             inputRange: [0, 80, 160],
             outputRange: [0, 0.5, 1],
@@ -68,8 +61,6 @@ class GoodsIndexScreen extends Component<any, any> {
         });
 
         const { height, width } = Dimensions.get('window');
-        const goodProps = toJS(goodsStore)
-
 
         return (
             <View style={{ flex: 1 }}>
@@ -87,16 +78,18 @@ class GoodsIndexScreen extends Component<any, any> {
                     )}
                     refreshControl={
                         <RefreshControl
-                            refreshing={goodsStore.refreshing}
-                            onRefresh={() => goodsStore.onRefresh()}
-                        />}
+                            refreshing={main.refreshing}
+                            onRefresh={() => dispatch({ type: 'main/onRefresh' })}
+                        />
+                    }
+
                 >
 
-                    <Banner goodsStore={goodProps} />
+                    <Banner bannerList={main.bannerList} />
                     <CircleItems {...this.props} />
-                    <NewItems {...this.props } goodsStore={goodProps} />
-                    <HotSaleItems {...this.props } goodsStore={goodProps} />
-                    <CountryItems {...this.props } goodsStore={goodProps} />
+                    <NewItems {...this.props } />
+                    <HotSaleItems {...this.props } />
+                    <CountryItems {...this.props } />
                     <BottomItems width={width} />
 
                 </Animated.ScrollView>
@@ -107,4 +100,4 @@ class GoodsIndexScreen extends Component<any, any> {
     }
 }
 
-export default GoodsIndexScreen;
+export default IndexScreen;

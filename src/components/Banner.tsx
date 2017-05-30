@@ -1,20 +1,9 @@
 import React, { Component } from 'react';
-import {
-    Text,
-    View,
-    Image,
-    StyleSheet,
-    ScrollView,
-    Dimensions,
-    TouchableWithoutFeedback,
-    StatusBar,
-    Animated,
-    RefreshControl,
-    Platform
-} from 'react-native';
+import { View } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { CachedImage, ImageCache } from "react-native-img-cache";
-const Banner = ({ goodsStore }: { goodsStore: any }) => {
+
+const Banner = ({ bannerList=[] }: { bannerList: any }) => {
     return (
         <Swiper
             height={180}
@@ -33,7 +22,7 @@ const Banner = ({ goodsStore }: { goodsStore: any }) => {
                 borderColor: '#70a938'
             }} />}
         >
-            {goodsStore.imgList.map((item: any) => {
+            {bannerList.map((item: any) => {
                 return (
                     <View key={item.id}>
                         <CachedImage

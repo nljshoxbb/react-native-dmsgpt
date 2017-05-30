@@ -21,13 +21,15 @@ import { observer } from 'mobx-react';
 import { InputItem, Button, WhiteSpace, WingBlank } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import theme from '../../style/theme/default.js';
-
+import { connect } from 'dva';
 interface Props {
-    profileStore: any,
     form?: any,
-    navigation: any
+    navigation: any,
+    user: any,
+    dispatch?: any
 }
-@observer(['profileStore'])
+
+@connect(({ user }: { user?: any }) => ({ user }))
 class Login extends Component<Props, any>{
 
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
@@ -46,24 +48,31 @@ class Login extends Component<Props, any>{
     }
 
     constructor(props: any) {
-        super(props)
+        super(props);
+        this.state = {
+            focus: [false, false]
+        }
     }
 
-    @observable focus = [false, false];
 
-    @action handleFocus = (idx: number) => {
-        this.focus = [false, false];
-        this.focus[idx] = !this.focus[idx];
+    handleFocus = (idx: number) => {
+        let focus = [false, false];
+        focus[idx] = !focus[idx];
+        this.setState({ focus });
+    }
+
+    handleBlur = () => {
+        this.setState({ focus: [false, false] });
     }
 
     submit() {
         this.props.form.validateFields((error?: any, value?: any) => {
-            this.props.profileStore.login(value);
+            // this.props.profileStore.login(value);
         });
     }
 
     render() {
-        const { profileStore, form, navigation } = this.props;
+        const { form, navigation, user, dispatch } = this.props;
         const { getFieldProps, getFieldError } = form;
         return (
             <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}>
@@ -73,41 +82,44 @@ class Login extends Component<Props, any>{
                         <Text style={{
                             marginLeft: 15,
                             marginTop: 10,
-                            color: theme.brand_primary,
-                            opacity: this.focus[0] ? 1 : 0
+                            color: this.state.focus[0] ? theme.brand_primary : theme.color_text_desalt,
+                            opacity: user.phone ? 1 : 0
                         }}>手机号码</Text>
                         <InputItem
                             {...getFieldProps('phone', {
                                 initialValue: '',
-                                onChange: (val: any) => profileStore.handleInput(val, 'phone'),
+                                onChange: (val: any) => dispatch({ type: 'user/getInputValue', payload: { phone: val } }),
+                                onBlur: (val: any) => dispatch({ type: 'user/getInputValue', payload: { phone: val } }),
                             }) }
                             type="number"
                             clear
                             placeholder='请输入手机号码'
                             onFocus={() => { this.handleFocus(0) }}
+                            onBlur={this.handleBlur}
                         />
                         <Text style={{
                             marginLeft: 15,
                             marginTop: 5,
-                            color: theme.brand_primary,
-                            opacity: this.focus[1] ? 1 : 0
+                            color: this.state.focus[1] ? theme.brand_primary : theme.color_text_desalt,
+                            opacity: user.password ? 1 : 0
                         }}>密码</Text>
                         <InputItem
                             {...getFieldProps('password', {
                                 initialValue: '',
-                                onChange: (val: any) => profileStore.handleInput(val, 'password'),
+                                onChange: (val: any) => dispatch({ type: 'user/getInputValue', payload: { password: val } }),
 
                             }) }
                             clear
                             type="password"
                             placeholder='请输入密码'
                             onFocus={() => { this.handleFocus(1) }}
+                            onBlur={this.handleBlur}
                         />
 
                     </View>
                     <View style={{ margin: 25 }}>
                         <Button
-                            disabled={profileStore.canLogin ? false : true}
+                            disabled={(!!user.phone && !!user.password) ? false : true}
                             type='primary'
                             onPressOut={() => this.submit()}
                         >登录</Button>

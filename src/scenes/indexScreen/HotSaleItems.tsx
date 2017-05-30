@@ -9,14 +9,14 @@ import {
 import { CachedImage, ImageCache } from "react-native-img-cache";
 interface Props {
     navigation: any,
-    goodsStore: any
+    main: any
 }
 import HorizontalRowItem from './HorizontalRowItem';
 import theme from '../../style/theme/default.js';
 import { styles } from './styles';
 
 const HotSaleItems: SFC<Props> = ({
-    goodsStore,
+    main,
     navigation
 }) => {
     return (
@@ -31,7 +31,7 @@ const HotSaleItems: SFC<Props> = ({
                     horizontal
                     showsHorizontalScrollIndicator={false}
                 >
-                    {goodsStore.recommendList.map((rowData: any) => (<HorizontalRowItem key={rowData.id} rowData={rowData} navigation={navigation} />))}
+                    {main.recommendList.map((rowData: any) => (<HorizontalRowItem key={rowData.id} rowData={rowData} navigation={navigation} />))}
                 </ScrollView>
             </View>
         </View>

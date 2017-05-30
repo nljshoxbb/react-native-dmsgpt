@@ -9,18 +9,18 @@ import {
 import { CachedImage, ImageCache } from "react-native-img-cache";
 interface Props {
     navigation: any,
-    goodsStore: any
+    main: any
 }
 import HorizontalRowItem from './HorizontalRowItem';
 import theme from '../../style/theme/default.js';
 import { styles } from './styles';
 
 const NewItems: SFC<Props> = ({
-    goodsStore,
+    main,
     navigation
 }) => {
     const _rendNews = () => {
-        return goodsStore.scrollList.map((rowData: any, idx: number | string) => {
+        return main.newsList.map((rowData: any, idx: number | string) => {
             let title = rowData.title.length > 15 ? rowData.title.slice(0, 15) : rowData.title;
             return (
                 <TouchableWithoutFeedback

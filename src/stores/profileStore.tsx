@@ -47,18 +47,7 @@ class profileStore {
     }
 
     @action getProfileInfo() {
-        // axios.post(domain + fruitListApi, tools.parseParam({ page: 1, len: 30, type: 1, refreshing: 1, nation_id: this.nation.id }))
-        //     .then(action('getFruitList', (response: any) => {
-        //         if (response.data.code === 'SUCCESS') {
-        //             const dataBlob = response.data.data;
-        //             this.list = dataBlob;
-        //             this.refreshing = false;
 
-        //         }
-        //     }))
-        //     .catch(function (error) {
-        //         console.log(error);
-        //     });
     }
 
     @action handleModal() {

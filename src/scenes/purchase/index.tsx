@@ -15,13 +15,11 @@ import {
     Modal
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { observable } from 'mobx';
-import { observer } from 'mobx-react';
 
 import MyButton from '../../components/MyButton';
 import MyLogin from '../../components/MyLogin';
 
-@observer(['profileStore'])
+
 class Purchase extends Component<any, any> {
 
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
@@ -32,8 +30,6 @@ class Purchase extends Component<any, any> {
     }
 
     render() {
-        const { profileStore } = this.props;
-
         return (
             <View style={{ flex: 1 }}>
                 <View style={{ paddingTop: 20, backgroundColor: 'rgba(113,172,55,1)' }}>

@@ -7,10 +7,9 @@ import {
     Image
 } from 'react-native';
 import { commonStyles } from '../style';
-import { observable, useStrict } from 'mobx';
-import { Provider, observer } from 'mobx-react';
 
-@observer(['goodsStore'])
+
+
 class Order extends Component<any, any> {
     constructor(props: any) {
         super(props);

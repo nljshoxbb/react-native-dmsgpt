@@ -1,23 +1,29 @@
-import React, { Component } from 'react';
-import { Text, View } from 'react-native';
-import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
+import React, { Component, PureComponent } from 'react';
+import {
+    StackNavigator,
+    TabNavigator,
+    DrawerNavigator,
+    addNavigationHelpers,
+    NavigationActions
+} from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Goods from './goods';
+import { connect } from 'dva';
+import { BackAndroid } from 'react-native';
+
+import IndexScreen from './indexScreen';
 import Orders from './orders';
 import User from './user';
 import Purchase from './purchase';
-
-import styles from './style';
 import FruitList from './fruitList';
 import Article from './article';
 import Register from './register';
 import Login from './login';
 
 
-const TabIndex = TabNavigator({
-    Goods: {
-        screen: Goods,
+const HomeNavigator = TabNavigator({
+    IndexScreen: {
+        screen: IndexScreen,
         navigationOptions: () => ({
             tabBarLabel: "货源",
             tabBarIcon: ({ tintColor }) => (
@@ -37,7 +43,7 @@ const TabIndex = TabNavigator({
     Orders: {
         screen: Orders,
         navigationOptions: () => ({
-            tabBarLabel: "采购",
+            tabBarLabel: "采购单",
             tabBarIcon: ({ tintColor }) => (
                 <Ionicons name="ios-paper-outline" size={30} color={tintColor} />
             )
@@ -46,7 +52,7 @@ const TabIndex = TabNavigator({
     User: {
         screen: User,
         navigationOptions: () => ({
-            tabBarLabel: "采购",
+            tabBarLabel: "我的",
             tabBarIcon: ({ tintColor }) => (
                 <FontAwesome name="user-o" size={28} color={tintColor} />
             )
@@ -56,36 +62,92 @@ const TabIndex = TabNavigator({
         tabBarOptions: {
             activeTintColor: '#70a938'
         },
-        // animationEnabled: true,
+        animationEnabled: false,
         tabBarPosition: 'bottom',
         lazy: true,
-        initialRouteName: "Purchase"
+        initialRouteName: "IndexScreen"
     });
 
 
-const AppNavigator = StackNavigator({
-    TabIndex: {
-        screen: TabIndex,
-        navigationOptions: ({ navigation }) => ({
-            header: null
-        }),
-    },
-    FruitList: {
-        screen: FruitList,
-    },
-    Article: {
-        screen: Article,
-    },
-    Login: {
-        screen: Login,
-    },
-    Register: {
-        screen: Register
-    }
-}, {
+const MainNavigator = StackNavigator(
+    {
+        HomeNavigator: {
+            screen: HomeNavigator,
+            navigationOptions: ({ navigation }) => ({
+                header: null
+            }),
+        },
+        FruitList: { screen: FruitList, },
+        Article: { screen: Article, },
+
+    }, {
         headerMode: 'screen',
-        initialRouteName: "TabIndex"
-    });
+        initialRouteName: "HomeNavigator"
+    }
+)
 
+const AppNavigator = StackNavigator(
+    {
+        Main: { screen: MainNavigator },
+        Login: { screen: Login },
+        Register: { screen: Register }
+    },
+    {
+        // headerMode: 'none',
+        mode: 'modal',
+        navigationOptions: {
+            gesturesEnabled: false
+        }
+    }
+);
 
-export default AppNavigator;
+function getCurrentScreen(navigationState: any) {
+    if (!navigationState) {
+        return null;
+    }
+    const route = navigationState.routes[navigationState.index];
+    if (route.routes) {
+        return getCurrentScreen(route);
+    }
+    return route.routeName;
+}
+
+@connect(({ router }: { router?: any }) => ({ router }))
+class Router extends PureComponent<any, any> {
+    constructor(props: any) {
+        super(props);
+
+    }
+
+    componentWillMount() {
+        BackAndroid.addEventListener('hardwareBackPress', this.backHandle)
+    }
+
+    componentWillUnmount() {
+        BackAndroid.removeEventListener('hardwareBackPress', this.backHandle)
+    }
+
+    backHandle = () => {
+        const currentScreen = getCurrentScreen(this.props.router)
+        if (currentScreen === 'Login') {
+            return true
+        }
+        if (currentScreen !== 'Home') {
+            this.props.dispatch(NavigationActions.back())
+            return true
+        }
+        return false;
+    }
+
+    render() {
+        const { dispatch, router } = this.props
+        const navigation = addNavigationHelpers({ dispatch, state: router })
+        return <AppNavigator navigation={navigation} />
+    }
+}
+
+export function routerReducer(state: any, action = {}) {
+    return AppNavigator.router.getStateForAction(action, state)
+}
+
+export default Router;

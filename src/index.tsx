@@ -1,23 +1,27 @@
-import React, { Component } from 'react'
-import { observable, useStrict } from 'mobx';
-import { Provider, observer } from 'mobx-react';
-import { Text, View } from 'react-native';
+import React from 'react';
+import { AppRegistry, AsyncStorage } from 'react-native';
+import {createLogger} from 'redux-logger';
+import dva from 'dva/mobile';
+// import { persistStore, autoRehydrate } from 'redux-persist';
 
-import { StackNavigator, TabNavigator, DrawerNavigator,addNavigationHelpers } from 'react-navigation';
-import AppNavigator from './scenes';
-import stores from './stores';
+import { registerModels } from './models'
+import Router from './scenes'
 
-useStrict(true);
+const app = dva({
+    initialState: {},
+    // extraEnhancers: [autoRehydrate()],
+    onError(e) {
+        console.log('onError', e)
+    },
+    onAction: createLogger({collapsed:true}),
+
+})
+registerModels(app)
+app.router(() => <Router />)
+const App = app.start()
 
 
-class App extends Component<any, any> {
-    render() {
-        return (
-            <Provider {...stores}>
-                <AppNavigator />
-            </Provider>
-        )
-    }
-}
+// persistStore(app._store, { storage: AsyncStorage })
 
+// AppRegistry.registerComponent('DvaStarter', () => App)
 export default App;

@@ -9,17 +9,17 @@ import {
 import { CachedImage, ImageCache } from "react-native-img-cache";
 interface Props {
     navigation: any,
-    goodsStore: any
+    main: any
 }
 import HorizontalRowItem from './HorizontalRowItem';
 import theme from '../../style/theme/default.js';
 import { styles } from './styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 const CountryItems: SFC<Props> = ({
-    goodsStore,
+    main,
     navigation
 }) => {
-    const { countryList, nationalList } = goodsStore;
+    const { countryFruitList, nationalList } = main;
 
     let countryArr = [
         {
@@ -49,8 +49,8 @@ const CountryItems: SFC<Props> = ({
         }
     ];
 
-    if (countryList.length != 0) {
-        countryList.forEach((item: any, idx: number) => {
+    if (countryFruitList.length != 0) {
+        countryFruitList.forEach((item: any, idx: number) => {
             if (!item) {
                 item = [];
             }

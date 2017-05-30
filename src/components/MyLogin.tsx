@@ -23,11 +23,10 @@ import { createForm } from 'rc-form';
 import theme from '../style/theme/default.js';
 
 interface Props {
-    profileStore: any,
     form?: any,
     navigation: any
 }
-@observer(['profileStore'])
+
 class MyLogin extends Component<Props, any>{
     constructor(props: any) {
         super(props)
@@ -40,15 +39,8 @@ class MyLogin extends Component<Props, any>{
         this.focus[idx] = !this.focus[idx];
     }
 
-    submit() {
-        this.props.form.validateFields((error?: any, value?: any) => {
-
-        });
-        console.log(this.props.form.getFieldsValue())
-    }
-
     render() {
-        const { profileStore, navigation } = this.props;
+        const { navigation } = this.props;
         return (
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
                 <StatusBar
