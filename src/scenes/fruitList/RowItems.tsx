@@ -27,12 +27,12 @@ const RowItems: SFC<Props> = ({
     rowData
 }) => {
 
-    const { listType } = context.props.fruitlistStore;
+    const { listType } = context.props.fruitList;
     let animated = new Animated.Value(0);
     let opacitytranslate = new Animated.Value(0);
     const width = ip5 ? 140 : 160;
     const translateHeight = width - 15;
-
+   
     if (listType) {
         return (
             <View>

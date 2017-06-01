@@ -13,7 +13,8 @@ import {
 import { CachedImage, ImageCache } from "react-native-img-cache";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 interface Props {
-    fruitlistStore: any
+    fruitList: any,
+    dispatch: any
 }
 
 import theme from '../../style/theme/default.js';
@@ -21,7 +22,8 @@ import { styles } from './styles';
 const DEVICE_WIDTH = Dimensions.get("window").width;
 const ip5 = (Platform.OS === 'ios' && DEVICE_WIDTH == 640) ? true : false;
 const SelecItem: SFC<Props> = ({
-    fruitlistStore
+    fruitList,
+    dispatch
 }) => {
     return (
         <View style={{ backgroundColor: '#fff', flexDirection: 'row', flex: 1 }}>
@@ -30,16 +32,16 @@ const SelecItem: SFC<Props> = ({
                 <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
             </View>
             <View style={[contentStyles.sectionHeaderBox]}>
-                <Text style={{ paddingRight: 5 }}>{fruitlistStore.nation.name ? fruitlistStore.nation.name : "不限产地"}</Text>
+                <Text style={{ paddingRight: 5 }}>{fruitList.nation.name ? fruitList.nation.name : "不限产地"}</Text>
                 <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
             </View>
             <View style={[contentStyles.sectionHeaderBox]}>
                 <Text style={{ paddingRight: 5 }}>十大推荐</Text>
                 <Ionicons name="md-arrow-dropdown" size={18} color="#cccccc" />
             </View>
-            <TouchableWithoutFeedback onPress={() => fruitlistStore.changeListType()}>
+            <TouchableWithoutFeedback onPress={() => dispatch({ type: 'changeListType' })}>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingLeft: 10, width: 50, paddingRight: 10 }}>
-                    {fruitlistStore.listType ? <Ionicons name="md-apps" size={28} color="#cccccc" /> : <Ionicons name="ios-list" size={28} color="#cccccc" />}
+                    {fruitList.listType ? <Ionicons name="md-apps" size={28} color="#cccccc" /> : <Ionicons name="ios-list" size={28} color="#cccccc" />}
                 </View>
             </TouchableWithoutFeedback>
         </View>

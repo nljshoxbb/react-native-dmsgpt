@@ -88,7 +88,12 @@ const MainNavigator = StackNavigator(
 
 const AppNavigator = StackNavigator(
     {
-        Main: { screen: MainNavigator },
+        Main: {
+            screen: MainNavigator,
+            navigationOptions: ({ navigation }) => ({
+                header: null
+            }),
+        },
         Login: { screen: Login },
         Register: { screen: Register }
     },
@@ -140,7 +145,7 @@ class Router extends PureComponent<any, any> {
     }
 
     render() {
-        const { dispatch, router } = this.props
+        const { dispatch, router } = this.props;
         const navigation = addNavigationHelpers({ dispatch, state: router })
         return <AppNavigator navigation={navigation} />
     }

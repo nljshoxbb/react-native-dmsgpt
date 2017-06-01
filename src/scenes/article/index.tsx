@@ -7,10 +7,9 @@ import {
     ScrollView,
     WebView
 } from 'react-native';
-import HTMLView from 'react-native-htmlview';
-import { observer, inject } from 'mobx-react';
+import { connect } from 'dva';
 
-@inject("articleStore") @observer
+@connect(({ article }: { article: any }) => ({ article }))
 class Article extends Component<any, any> {
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
         const { state } = navigation;
@@ -32,14 +31,15 @@ class Article extends Component<any, any> {
     }
 
     componentDidMount() {
-        const { articleStore, navigation } = this.props;
-        articleStore.getArticle(navigation.state.params.id);
+        const { article, navigation, dispatch } = this.props;
+        // article.getArticle(navigation.state.params.id);
+        dispatch({ type: 'article/getArticle', payload: { id: navigation.state.params.id } })
 
     }
 
 
     render() {
-        const { article, loading } = this.props.articleStore;
+        const { article, loading } = this.props.article;
         const HTML = `
                 <!DOCTYPE html>\n
                 <html>

@@ -66,8 +66,10 @@ class Login extends Component<Props, any>{
     }
 
     submit() {
-        this.props.form.validateFields((error?: any, value?: any) => {
+        const { dispatch, form } = this.props;
+        form.validateFields((error?: any, value?: any) => {
             // this.props.profileStore.login(value);
+            dispatch({ type: 'user/login', payload: value });
         });
     }
 
@@ -89,7 +91,6 @@ class Login extends Component<Props, any>{
                             {...getFieldProps('phone', {
                                 initialValue: '',
                                 onChange: (val: any) => dispatch({ type: 'user/getInputValue', payload: { phone: val } }),
-                                onBlur: (val: any) => dispatch({ type: 'user/getInputValue', payload: { phone: val } }),
                             }) }
                             type="number"
                             clear
@@ -107,7 +108,6 @@ class Login extends Component<Props, any>{
                             {...getFieldProps('password', {
                                 initialValue: '',
                                 onChange: (val: any) => dispatch({ type: 'user/getInputValue', payload: { password: val } }),
-
                             }) }
                             clear
                             type="password"

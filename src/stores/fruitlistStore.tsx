@@ -15,7 +15,6 @@ import { ListView } from 'react-native';
 
 class fruitlistStore {
     @observable list = [];
-    @observable listType = false;
     @observable refreshing = false;
     @observable nation = {
         id: '',

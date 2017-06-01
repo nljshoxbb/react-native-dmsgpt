@@ -18,8 +18,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import MyButton from '../../components/MyButton';
 import MyLogin from '../../components/MyLogin';
+import { connect } from 'dva';
 
-
+@connect(({})=>({}))
 class Purchase extends Component<any, any> {
 
     static navigationOptions = ({ navigation }: { navigation?: any }) => {

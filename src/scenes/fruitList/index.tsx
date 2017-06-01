@@ -15,12 +15,10 @@ import {
     ActivityIndicator
 } from 'react-native';
 import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
-import { observable, useStrict, toJS } from 'mobx';
-import { Provider, observer, inject } from 'mobx-react';
+import { connect } from 'dva';
 import Swiper from 'react-native-swiper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { CachedImage } from "react-native-img-cache";
-import { styles } from './styles';
 
 import MyStatusBar from '../../components/MyStatusBar';
 import Banner from '../../components/Banner';
@@ -39,14 +37,12 @@ type _animateOpacity = null;
 type _style = {};
 type _animateHeight = null;
 
-@observer(['fruitlistStore', 'goodsStore'])
+@connect(({ fruitList, main }: { fruitList: any, main: any }) => ({ fruitList, main }))
 class FruitList extends Component<any, any> {
-
     static navigationOptions = ({ navigation }: { navigation?: any }) => {
         const { state } = navigation;
-
         return ({
-            headerBackTitle: null,
+            // headerBackTitle: null,
             headerTintColor: '#fff',
             headerStyle: {
                 position: 'absolute',
@@ -57,9 +53,9 @@ class FruitList extends Component<any, any> {
                 height: 60,
                 opacity: (!state.params || state.params.animateOpacity == undefined) ? 0 : state.params.animateOpacity,
             },
-
         })
     }
+
     _animateValue = new Animated.Value(0);
     _animateOpacity = new Animated.Value(0);
     _animateHeight = new Animated.Value(0);
@@ -68,23 +64,26 @@ class FruitList extends Component<any, any> {
         height: 0,
     }
     _box = null;
-    @observable animatedOpacity = 0;
-    @observable scrollY = new Animated.Value(0);
+    // @observable animatedOpacity = 0;
+    // @observable scrollY = new Animated.Value(0);
     constructor(props: any) {
         super(props);
+        this.state = {
+            animatedOpacity: 0,
+            scrollY: new Animated.Value(0)
+        }
     }
 
     componentDidMount() {
-        const { fruitlistStore, navigation } = this.props;
-
+        const { navigation, dispatch } = this.props;
         if (navigation.state.params) {
             const { nation_id, nation_name } = navigation.state.params;
-            fruitlistStore.setNation(nation_id, nation_name);
+            dispatch({ type: 'fruitList/getList', payload: { nation_id } });
+            dispatch({ type: 'fruitList/setNation', payload: { nation: { id: nation_id, name: nation_name } } });
         } else {
-            fruitlistStore.setNation();
+            dispatch({ type: 'fruitList/getList', payload: { nation_id: '' } });
         }
-
-        fruitlistStore.getFruitList();
+       
     }
 
 
@@ -94,26 +93,25 @@ class FruitList extends Component<any, any> {
         const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
         this.props.navigation.setParams({
-            animateOpacity: this.scrollY.interpolate({
+            animateOpacity: this.state.scrollY.interpolate({
                 inputRange: [0, 160],
                 outputRange: [0, 1],
                 extrapolate: 'clamp'
             })
         });
-
-
     }
 
     handleScroll = (event: any) => {
-        // console.log(event.nativeEvent.contentOffset.y)
-        Animated.event([{ nativeEvent: { contentOffset: { y: this.scrollY } } }])(event);
+        Animated.event([{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }])(event);
     }
 
     render() {
-        const { goodsStore, fruitlistStore } = this.props;
-        const goodProps = toJS(goodsStore);
-
-        const listStyle = fruitlistStore.listType ?
+        const {
+            fruitList,
+            dispatch,
+            main
+        } = this.props;
+        const listStyle = fruitList.listType ?
             {
                 flexDirection: 'column',
 
@@ -127,12 +125,12 @@ class FruitList extends Component<any, any> {
 
         return (
             <View style={{ flex: 1 }}>
-                <MySticky scrollY={this.scrollY}>
+                <MySticky scrollY={this.state.scrollY}>
                     <SelecItem {...this.props} />
                 </MySticky>
 
                 <ListView
-                    dataSource={fruitlistStore.fruitList}
+                    dataSource={fruitList.list}
                     renderRow={(val) => {
                         const obj = {
                             rowData: val,
@@ -144,7 +142,7 @@ class FruitList extends Component<any, any> {
                     contentContainerStyle={[listStyle]}
                     renderHeader={() => (
                         <View>
-                            <Banner goodsStore={goodProps} />
+                            <Banner bannerList={main.bannerList} />
                             <View style={{ height: 40 }} >
                                 <SelecItem {...this.props} />
                             </View>
@@ -155,8 +153,8 @@ class FruitList extends Component<any, any> {
                     pageSize={4}
                     refreshControl={
                         <RefreshControl
-                            refreshing={goodsStore.refreshing}
-                            onRefresh={() => goodsStore.onRefresh()}
+                            refreshing={fruitList.refreshing}
+                            onRefresh={() => dispatch({ type: 'fruitList/onRefresh' })}
                         />}
                 >
 
@@ -166,46 +164,5 @@ class FruitList extends Component<any, any> {
     }
 }
 
-const contentStyles = StyleSheet.create({
-    sectionHeader: {
-        paddingTop: 60,
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-    },
-    sectionHeaderBox: {
-        flex: 1,
-        borderRightWidth: 1,
-        borderColor: '#eee',
-        flexDirection: 'row',
-        marginTop: 10,
-        marginBottom: 10,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
-    row: {
-        justifyContent: 'center',
-        // padding: 5,
-        // margin: 3,
-        padding: 10,
-        width: DEVICE_WIDTH * 0.5,
-        // height: 200,
-        backgroundColor: '#fff',
-        // alignItems: 'center',
-        borderColor: '#f6f6f6',
-        borderWidth: 2,
-        position: 'relative',
-    },
-    row2: {
-
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 10,
-        backgroundColor: '#fff',
-        borderColor: '#f6f6f6',
-        borderWidth: 2,
-        position: 'relative',
-    }
-})
 
 export default FruitList;
