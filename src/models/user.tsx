@@ -80,7 +80,7 @@ export default {
             const app_auth = JSON.parse(result);
             const currentTimestamp = Math.floor(new Date().getTime() / 1000);
 
-            yield put(createAction('refreshToken')({ refresh_token: app_auth.refresh_token }));
+           
             //超过有效时间
             if (currentTimestamp - app_auth.currentTimestamp > app_auth.access_token_valid_time) {
                 yield put(createAction('refreshToken')({ refresh_token: app_auth.refresh_token }));
