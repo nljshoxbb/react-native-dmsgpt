@@ -1,5 +1,9 @@
-import { delay, NavigationActions } from '../utils'
+import { delay, NavigationActions, createAction } from '../utils'
 import { routerReducer } from '../scenes';
+import { AsyncStorage } from 'react-native';
+import {
+  APP_AUTH_KEY
+} from '../configs/storage.js';
 
 const actions = [
   NavigationActions.BACK,
@@ -21,22 +25,40 @@ export default {
     },
   },
   effects: {
+    
     watch: [
       function* watch({ take, call, put }) {
-        const loop = true
-        while (loop) {
-          const payload = yield take(actions)
-          yield put({
-            type: 'apply',
-            payload,
-          })
-          // debounce, see https://github.com/react-community/react-navigation/issues/271
-          if (payload.type === 'Navigation/NAVIGATE') {
-            yield call(delay, 250)
+        const loop = true;
+        try {
+          while (loop) {
+            const payload = yield take(actions)
+            yield put({
+              type: 'apply',
+              payload,
+            });
+            // debounce, see https://github.com/react-community/react-navigation/issues/271
+            if (payload.type === 'Navigation/NAVIGATE') {
+              yield call(delay, 100);
+            }
+            switch (payload.routeName) {
+              case "Purchase":
+                yield put(createAction('user/handleLoginStatus')());
+                break;
+              default:
+                break;
+            }
           }
+        } catch (error) {
+          console.warn(error)
         }
+
       },
       { type: 'watcher' },
     ],
+  },
+  subscriptions: {
+    setup({ dispatch }) {
+
+    },
   },
 }

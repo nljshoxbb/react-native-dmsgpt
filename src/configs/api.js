@@ -14,5 +14,7 @@ export const verifyCodeApi = '/Member/Public/verify_code';
 //登陆
 export const loginApi = '/Member/Public/login';
 
+export const refreshTokenApi = '/Member/Public/refresh_token';
+
 //需要登录
 export const newAfficheApi = "/Shop/Shop/getFruitAffiche";//最新公告列表

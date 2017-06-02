@@ -16,11 +16,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React Native!"
 
-@interface ReactNativeDurianTests : XCTestCase
+@interface ReactNativeDmsgptTests : XCTestCase
 
 @end
 
-@implementation ReactNativeDurianTests
+@implementation ReactNativeDmsgptTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL(^)(UIView *view))test
 {

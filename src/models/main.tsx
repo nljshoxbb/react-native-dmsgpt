@@ -55,7 +55,7 @@ export default {
         refreshingEnd(state, { payload }) {
             return { ...state, ...payload };
         },
-   
+
     },
     effects: {
         *getCountryFruitList({ payload }, { call, put, select }) {
@@ -109,41 +109,47 @@ export default {
                         }
                     }
                 } else {
-                    yield put(createAction('onRefresh'));
+                    yield put(createAction('onRefresh')());
                 }
             } catch (error) {
                 console.error(error);
             }
         },
         *onRefresh({ payload }, { put, call, select }) {
-            yield put({ type: 'refreshingStart', payload: { refreshing: true } });
-            const resultArr = yield call(getAll);
-            for (let i in resultArr) {
-                const { data } = resultArr[i];
-                switch (i) {
-                    case "0":
-                        data.status === 1 ? yield put(createAction('setBannerList')({ bannerList: data.data })) : yield put(createAction('getbannerListFail')());
-                        break;
-                    case "1":
-                        data.code === "SUCCESS" ? yield put(createAction('setNewsList')({ newsList: data.data })) : yield put(createAction('getnewsListFail')());
-                        break;
-                    case "2":
-                        data.code === "SUCCESS" ? yield put(createAction('setRecommendList')({ recommendList: data.data })) : yield put(createAction('getrecommendListFail')());
-                        break;
-                    case "3":
-                        if (data.code === 'SUCCESS') {
-                            yield put(createAction('setNationalList')({ nationalList: data.data }));
-                            yield put(createAction('getCountryFruitList')({ nationalList: data.data.slice(0, 3) }));
-                            yield put(createAction('refreshingEnd')({ refreshing: false }));
-                        } else {
-                            yield put(createAction('getNationalListFail')());
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            };
-            yield put(createAction('saveToLocalStorage')())
+            try {
+                yield put({ type: 'refreshingStart', payload: { refreshing: true } });
+                const resultArr = yield call(getAll);
+                for (let i in resultArr) {
+                    const { data } = resultArr[i];
+                    switch (i) {
+                        case "0":
+                            data.status === 1 ? yield put(createAction('setBannerList')({ bannerList: data.data })) : yield put(createAction('getbannerListFail')());
+                            break;
+                        case "1":
+                            data.code === "SUCCESS" ? yield put(createAction('setNewsList')({ newsList: data.data })) : yield put(createAction('getnewsListFail')());
+                            break;
+                        case "2":
+                            data.code === "SUCCESS" ? yield put(createAction('setRecommendList')({ recommendList: data.data })) : yield put(createAction('getrecommendListFail')());
+                            break;
+                        case "3":
+                            if (data.code === 'SUCCESS') {
+                                yield put(createAction('setNationalList')({ nationalList: data.data }));
+                                yield put(createAction('getCountryFruitList')({ nationalList: data.data.slice(0, 3) }));
+                                yield put(createAction('refreshingEnd')({ refreshing: false }));
+                            } else {
+                                yield put(createAction('getNationalListFail')());
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                };
+                yield put(createAction('saveToLocalStorage')())
+            } catch (error) {
+                console.warn(error);
+            }
+
+
         }
     },
     subscriptions: {

@@ -7,6 +7,8 @@ export const RECOMMEND_LIST_KEY = '@Goodstore:recommendList';
 export const NATIONAL_LIST_KEY = '@Goodstore:nationalList';
 export const COUNTRY_FRUIT_LIST_KEY = '@Goodstore:CountryFruitList';
 
+export const  APP_AUTH_KEY = '@User:App_auth';
+
 export const multiConnect = (arr) => {
     return AsyncStorage.multiGet(arr)
 }
@@ -22,3 +24,4 @@ export const multiSet = (arr) => {
 export const multiRemove = (arr) => {
     return AsyncStorage.multiRemove(arr);
 }
+

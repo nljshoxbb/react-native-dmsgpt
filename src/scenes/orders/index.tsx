@@ -36,10 +36,10 @@ class Order extends Component<any, any> {
         const slideStyle = this.state.slide.getTranslateTransform();
         return (
             <Animated.View style={slideStyle}>
-                <View style={{ width: 50, height: 50, }}>
-                    <Image source={{ uri: 'data:image/png;base64,' + this.props.goodsStore.data }} style={{ width: 250, height: 250, }} />
+                <View style={{ width: 50, height: 50,backgroundColor:'red' }}>
+                    
                 </View>
-                <Text selectable>{this.props.goodsStore.path}</Text>
+                <Text >123</Text>
             </Animated.View>
 
         );
