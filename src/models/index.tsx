@@ -10,7 +10,6 @@ import purchase from './purchase';
 
 
 
-
 export function registerModels(app: any) {
   app.model(appModel);
   app.model(router);
@@ -18,4 +17,6 @@ export function registerModels(app: any) {
   app.model(user);
   app.model(fruitList);
   app.model(purchase);
+  app.model(article);
+
 }

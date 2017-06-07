@@ -27,7 +27,7 @@ interface Props {
     navigation: any
 }
 
-class MyLogin extends Component<Props, any>{
+class LoginComp extends Component<Props, any>{
     constructor(props: any) {
         super(props)
 
@@ -60,4 +60,4 @@ class MyLogin extends Component<Props, any>{
 
 
 
-export default MyLogin;
+export default LoginComp;

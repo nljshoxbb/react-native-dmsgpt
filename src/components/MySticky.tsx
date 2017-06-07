@@ -25,7 +25,7 @@ const MySticky: SFC<Props> = ({
         left: 0,
         right: 0,
         zIndex: 1,
-        top: 60,
+        top: 64,
         borderColor: '#f6f6f6',
         position: 'absolute',
         backgroundColor:'#fff',

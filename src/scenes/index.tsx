@@ -4,12 +4,14 @@ import {
     TabNavigator,
     DrawerNavigator,
     addNavigationHelpers,
-    NavigationActions
+    NavigationActions,
 } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'dva';
-import { BackAndroid } from 'react-native';
+import { BackAndroid, View, Text } from 'react-native';
+
+import TabIcon from '../components/TabIcon';
 
 import IndexScreen from './indexScreen';
 import Orders from './orders';
@@ -45,7 +47,7 @@ const HomeNavigator = TabNavigator({
         navigationOptions: () => ({
             tabBarLabel: "采购单",
             tabBarIcon: ({ tintColor }) => (
-                <Ionicons name="ios-paper-outline" size={30} color={tintColor} />
+                <TabIcon tintColor={tintColor} />
             )
         })
     },

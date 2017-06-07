@@ -16,5 +16,10 @@ export const loginApi = '/Member/Public/login';
 
 export const refreshTokenApi = '/Member/Public/refresh_token';
 
+//=============================需要登录=================
 //需要登录
 export const newAfficheApi = "/Shop/Shop/getFruitAffiche";//最新公告列表
+//商品列表
+export const goodsListApi = '/Shop/Shop/getGoodsList';
+//获取栏目
+export const categoryListApi = '/Shop/Shop/getCategory';

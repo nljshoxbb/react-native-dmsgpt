@@ -50,7 +50,7 @@ class FruitList extends Component<any, any> {
                 top: 0,
                 left: 0,
                 right: 0,
-                height: 60,
+                height: 64,
                 opacity: (!state.params || state.params.animateOpacity == undefined) ? 0 : state.params.animateOpacity,
             },
         })
@@ -88,7 +88,7 @@ class FruitList extends Component<any, any> {
 
 
     componentWillMount() {
-        const HEADER_MAX_HEIGHT = 60;
+        const HEADER_MAX_HEIGHT = 64;
         const HEADER_MIN_HEIGHT = 0;
         const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
@@ -156,9 +156,9 @@ class FruitList extends Component<any, any> {
                             refreshing={fruitList.refreshing}
                             onRefresh={() => dispatch({ type: 'fruitList/onRefresh' })}
                         />}
-                >
+                />
 
-                </ListView >
+                
             </View>
         )
     }

@@ -9,7 +9,8 @@ import {
 import { CachedImage, ImageCache } from "react-native-img-cache";
 interface Props {
     navigation: any,
-    main: any
+    main: any,
+    dispatch: any
 }
 import HorizontalRowItem from './HorizontalRowItem';
 import theme from '../../style/theme/default.js';
@@ -17,7 +18,8 @@ import { styles } from './styles';
 
 const NewItems: SFC<Props> = ({
     main,
-    navigation
+    navigation,
+    dispatch
 }) => {
     const _rendNews = () => {
         return main.newsList.map((rowData: any, idx: number | string) => {
@@ -25,7 +27,11 @@ const NewItems: SFC<Props> = ({
             return (
                 <TouchableWithoutFeedback
                     key={rowData.id}
-                    onPress={() => navigation.navigate('Article', { name: 'Article', id: rowData.id })}>
+                    onPress={() => {
+                        dispatch({ type: 'acticle/getArticle', payload: { id: rowData.id } });
+                        navigation.navigate('Article', { name: 'Article', id: rowData.id })
+                    }
+                    }>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }} >
                         <View style={styles.yellowDot}></View>
                         <Text key={rowData.id} style={styles.scrollText}>{title}...</Text>
