@@ -37,12 +37,12 @@ class SearchBar extends Component<any, any> {
     submit = () => {
         console.log(111)
         if (this.props.submit) {
-            this.props.submit( this.state.name);
+            this.props.submit(this.state.name);
         }
     }
     render() {
         return (
-            <View style={{ paddingTop: 20, backgroundColor: theme.brand_primary }}>
+            <View style={{ paddingTop: 20, height: 64, backgroundColor: theme.brand_primary }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={styles.headWapper}>
                         <TextInput

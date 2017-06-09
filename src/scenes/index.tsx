@@ -9,7 +9,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'dva';
-import { BackAndroid, View, Text } from 'react-native';
+import { BackHandler, View, Text } from 'react-native';
 
 import TabIcon from '../components/TabIcon';
 
@@ -127,11 +127,11 @@ class Router extends PureComponent<any, any> {
     }
 
     componentWillMount() {
-        BackAndroid.addEventListener('hardwareBackPress', this.backHandle)
+        BackHandler.addEventListener('hardwareBackPress', this.backHandle)
     }
 
     componentWillUnmount() {
-        BackAndroid.removeEventListener('hardwareBackPress', this.backHandle)
+        BackHandler.removeEventListener('hardwareBackPress', this.backHandle)
     }
 
     backHandle = () => {

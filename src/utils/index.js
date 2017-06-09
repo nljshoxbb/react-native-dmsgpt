@@ -21,7 +21,7 @@ export const createAction = type => payload => ({ type, payload });
 
 export const DEVICE_WIDTH = Dimensions.get("window").width;
 
-export const isEmptyObj = (obj: any) => {
+export const isEmptyObj = (obj) => {
     for (let i in obj) {
         if (obj[i]) return false;
     }

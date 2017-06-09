@@ -1,4 +1,4 @@
-import { createAction, NavigationActions, dataSourceRowInit, delay, indexOf } from '../utils'
+import { createAction, NavigationActions, dataSourceRowInit, delay, indexOf, isEmptyObj } from '../utils'
 import {
     getGoodsList,
     getCategoryList
@@ -10,13 +10,17 @@ import axios from 'axios';
 import { multiConnect, multiSet, multiRemove } from '../configs/storage.js';
 const watcher = fn => [fn, { type: 'watcher' }];
 
-const dataSource = dataSourceRowInit();
+const dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+const ACTIONS = [
+    'user/logout',
+    'Navigation/BACK'
+]
 
 export default {
     namespace: 'purchase',
     state: {
         goodsList: [],
-        goodsDataSource: dataSource.cloneWithRows([]),
+        // goodsDataSource: dataSource.cloneWithRows([]),
         categoryList: [],
         category_id: '',
         refreshing: true,
@@ -57,7 +61,7 @@ export default {
         },
         addPurchaseList(state, { payload }) {
             const { goodsList, nation_id } = state;
-            return { ...state, purchaseList: [...state.purchaseList, payload], goodsDataSource: dataSource.cloneWithRows(goodsList[nation_id]) }
+            return { ...state, purchaseList: [...state.purchaseList, payload] }
         },
         decPurchaseList(state, { payload }) {
             let { purchaseList, goodsList, nation_id } = state;
@@ -65,9 +69,11 @@ export default {
             if (index) {
                 purchaseList.splice(index, 1);
             }
-            return { ...state, purchaseList, goodsDataSource: dataSource.cloneWithRows(goodsList[nation_id]) }
+            return { ...state, purchaseList }
         },
-
+        clearPurchaseList(state, { payload }) {
+            return { ...state, purchaseList: [] }
+        }
     },
     effects: {
         *getGoodsList({ payload }, { call, put, select }) {
@@ -79,7 +85,6 @@ export default {
 
                 if (goodsList[nation_id] && loadType == 'switch') {
                     yield put(createAction('getGoodsListSuccess')({
-                        goodsDataSource: dataSource.cloneWithRows(goodsList[nation_id]),
                         refreshing: false
                     }));
                 } else {
@@ -97,7 +102,6 @@ export default {
                         const postData = {
                             page: data.data.page,
                             goodsList,
-                            goodsDataSource: dataSource.cloneWithRows(goodsList[nation_id]),
                             refreshing: false,
                             loading: false
                         }
@@ -105,12 +109,12 @@ export default {
                     } else if (data.data.code === 'NO_DATA') {
                         let refreshing = false;
                         let loading = false;
-                        if (loadType == 'add') {
-                            yield put(createAction('getGoodsListNo_data')({ refreshing, loading, goodsDataSource: dataSource.cloneWithRows(goodsList[nation_id]) }))
-                        } else {
-                            yield put(createAction('getGoodsListNo_data')({ refreshing, loading, goodsDataSource: dataSource.cloneWithRows([]) }));
-                        }
-
+                        // if (loadType == 'add') {
+                        //     yield put(createAction('getGoodsListNo_data')({ refreshing, loading }))
+                        // } else {
+                        //     yield put(createAction('getGoodsListNo_data')({ refreshing, loading, }));
+                        // }
+                        yield put(createAction('getGoodsListNo_data')({ refreshing, loading }))
                     } else if (data.data.code === 'ASK_LOGIN') {
                         yield put(createAction('user/getAskLogin')())
                     }
@@ -147,7 +151,37 @@ export default {
             yield put(createAction('getNavList')());
             yield put(createAction('getCategoryList')());
             yield put(createAction('getGoodsList')({ loadType: 'init' }));
-        }
+        },
+        watch: [
+            function* watch({ take, call, put, select }) {
+                try {
+                    while (true) {
+                        const payload = yield take(ACTIONS);
+                        switch (payload.type) {
+                            case ACTIONS[0]:
+                                yield put(createAction('clearPurchaseList')());
+                                break;
+                            case ACTIONS[1]:
+                                const { router, user } = yield select(state => state);
+                                const { currentRoute } = router;
+                                const { userInfo } = user;
+                                if (currentRoute === 'Purchase' && !isEmptyObj(userInfo)) {
+                                    yield put(createAction('init')());
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+
+
+                    }
+                } catch (error) {
+                    console.warn(error)
+                }
+
+            },
+            { type: 'watcher' },
+        ],
     },
     subscriptions: {
         setup({ dispatch }) {

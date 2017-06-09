@@ -8,8 +8,6 @@ import purchase from './purchase';
 
 
 
-
-
 export function registerModels(app: any) {
   app.model(appModel);
   app.model(router);

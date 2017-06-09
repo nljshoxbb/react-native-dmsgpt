@@ -32,7 +32,7 @@ export default {
         loginStart(state, { payload }) {
             return { ...state, ...payload }
         },
-        loginFail(state, { payload }) {
+        logout(state, { payload }) {
             return { ...state, ...payload }
         },
         setInputValue(state, { payload }) {
@@ -64,7 +64,7 @@ export default {
 
             } else {
                 Toast.fail(data.data.info);
-                yield put(createAction('loginFail')({ userInfo: {} }))
+                yield put(createAction('logout')({ userInfo: {} }))
             }
         },
         *refreshToken({ payload }, { call, put }) {
@@ -77,14 +77,8 @@ export default {
                     yield AsyncStorage.setItem(APP_AUTH_KEY, JSON.stringify(app_auth));
                     setAccessToken(app_auth.access_token)
                 } else {
-                    yield put(createAction('loginFail')({ userInfo: {} }))
-                    //   Alert.alert(
-                    //         '系统提示',
-                    //         data.data.info,
-                    //         [
-                    //             { text: '确定', onPress: () => NavigationActions.navigate({ routeName: 'Login' }) },
-                    //         ])
-                    //     yield put(NavigationActions.navigate({ routeName: 'Login' }));
+                    //登出
+                    yield put(createAction('logout')({ userInfo: {} }));
                 }
             } catch (error) {
                 console.error(error);
@@ -94,7 +88,6 @@ export default {
         *handleLoginStatus({ payload }, { put, call }) {
             try {
                 const result = yield AsyncStorage.getItem(APP_AUTH_KEY);
-                console.log(!!result)
                 if (!!result) {
                     const app_auth = JSON.parse(result);
                     const currentTimestamp = Math.floor(new Date().getTime() / 1000);
@@ -122,7 +115,7 @@ export default {
                     { text: '确定', onPress: () => NavigationActions.navigate({ routeName: 'Login' }) },
                 ])
             // yield put(NavigationActions.navigate({ routeName: 'Login' }));
-            yield put(createAction('loginFail')({ userInfo: {} }));
+            yield put(createAction('logout')({ userInfo: {} }));
         }
     },
     subscriptions: {

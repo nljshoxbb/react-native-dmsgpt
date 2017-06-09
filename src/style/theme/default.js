@@ -17,4 +17,5 @@ export default {
     brand_hot: 'rgba(255,81,1,1)',
     brand_important: 'rgba(248,54,31,1)',
     brand_desalt_background: 'rgba(246,246,246,1)',
+    
 }

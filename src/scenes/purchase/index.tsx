@@ -42,7 +42,7 @@ class Purchase extends Component<any, any> {
     }
 
     render() {
-        console.log('==========render')
+       
         const { user, main, purchase, dispatch } = this.props;
         const { userInfo } = user;
         const { categoryList, category_id, goodsDataSource, nation_id, navList, refreshing, loading } = purchase;
@@ -71,7 +71,7 @@ class Purchase extends Component<any, any> {
                                 }}
                                 contentWidth={contentWidth}
                             />
-                            <List purchase={purchase} dispatch={dispatch} />
+                            <List  />
                         </View>
                     </View>
                 }

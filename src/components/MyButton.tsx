@@ -8,8 +8,8 @@ import {
 import theme from '../style/theme/default.js';
 
 interface Props {
-    title?: string | 'title',
-    onPress?: (x?: any) => void;
+    title: string | 'title',
+    onPress: (x?: any) => void;
 }
 
 const MyButton: SFC<Props> = ({

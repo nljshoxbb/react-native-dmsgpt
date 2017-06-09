@@ -10,35 +10,69 @@ import {
     ActivityIndicator,
     RefreshControl,
     ListView,
-    Image
+    Image,
+    RecyclerViewBackedScrollView,
+    TouchableHighlight,
+    FlatList
 } from 'react-native';
 import { connect } from 'dva';
 import { CachedImage, ImageCache } from "react-native-img-cache";
-
-
 import theme from '../../style/theme/default.js';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-
-
+@connect(({ purchase }) => ({ purchase }))
 class NavList extends Component<any, any> {
+
     constructor(props: any) {
         super(props);
+        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => { return r1.name !== r2.name } });
+        this.state = {
+            dataSource: ds.cloneWithRows([]),
+        }
 
     }
 
-    _renderRow = (rowData: any, context: any) => {
-        const { dispatch, purchase } = context;
-        const { purchaseList } = purchase;
+    componentWillMount() {
+        this._pressData = {};
+    }
 
-        let isExist = false;
-        for (let i = 0; i < purchaseList.length; i++) {
-            if (purchaseList[i].id == rowData.id) {
-                isExist = true;
-            }
+    componentWillReceiveProps(nextProps) {
+        const { nation_id, goodsList } = nextProps.purchase;
+        const data = goodsList[nation_id];
+
+        this.setState({
+            dataSource: this.state.dataSource.cloneWithRows(data ? this._genRows(this._pressData, data) : []),
+            list: data ? data : []
+        });
+
+
+    }
+
+    _genRows = (pressData: any, data: any) => {
+        const { purchaseList } = this.props.purchase;
+
+        var dataBlob = [];
+        for (var ii = 0; ii < data.length; ii++) {
+            var pressedText = pressData[ii] ? 'isExist' : '';
+            dataBlob.push({ name: pressedText, rowData: data[ii] });
         }
 
+        return dataBlob;
+    }
+
+    _pressRow = (rowID: number, rowData: any) => {
+        this._pressData[rowID] = !this._pressData[rowID];
+        this.setState({
+            dataSource: this.state.dataSource.cloneWithRows(this._genRows(this._pressData, this.state.list))
+        })
+    }
+
+    _renderRow = (item: any, sectionID: number, rowID: number) => {
+        const rowData = item.rowData;
+        const name = item.name;
+        console.log('===============_renderRow============')
         return (
+
             <View style={{
                 padding: 10,
                 paddingLeft: 5,
@@ -84,21 +118,22 @@ class NavList extends Component<any, any> {
                         </View>
                         <TouchableWithoutFeedback
                             onPress={() => {
-                                dispatch({ type: `purchase/${isExist ? 'dec' : 'add'}PurchaseList`, payload: rowData })
+                                this.props.dispatch({ type: `purchase/${name ? 'dec' : 'add'}PurchaseList`, payload: rowData })
+                                this._pressRow(rowID, rowData);
                             }}
                         >
                             <View style={{
                                 width: 32,
                                 height: 32,
                                 borderRadius: 50,
-                                backgroundColor: !isExist ? theme.brand_primary : '#fff',
+                                backgroundColor: !name ? theme.brand_primary : '#fff',
                                 borderWidth: 2,
                                 borderColor: theme.brand_primary,
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 flexDirection: 'row'
                             }}>
-                                {!isExist ?
+                                {!name ?
                                     <Ionicons name="ios-cart" size={18} color="#fff" />
                                     : <Ionicons name="ios-remove" size={18} color={theme.brand_primary} />}
                             </View>
@@ -108,13 +143,13 @@ class NavList extends Component<any, any> {
 
                 </View>
             </View>
+
         )
     }
 
-
     render() {
         const { purchase, dispatch } = this.props;
-        const { goodsDataSource, refreshing, loading } = purchase;
+        const { refreshing, loading } = purchase;
 
         if (refreshing && !loading) {
             return (
@@ -124,7 +159,7 @@ class NavList extends Component<any, any> {
                 </View>
 
             )
-        } else if (goodsDataSource._cachedRowCount == 0) {
+        } else if (this.state.dataSource._cachedRowCount == 0) {
             return (
 
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', paddingTop: 100 }}>
@@ -136,8 +171,8 @@ class NavList extends Component<any, any> {
                 <ListView
                     style={{ paddingBottom: 30 }}
                     enableEmptySections
-                    dataSource={goodsDataSource}
-                    renderRow={(val) => this._renderRow(val, this.props)}
+                    dataSource={this.state.dataSource}
+                    renderRow={this._renderRow}
                     initialListSize={10}
                     pageSize={4}
                     refreshControl={
@@ -150,7 +185,7 @@ class NavList extends Component<any, any> {
                         />}
                     onEndReachedThreshold={5}
                     onEndReached={() => {
-                        if (goodsDataSource._cachedRowCount > 5) {
+                        if (this.state.dataSource._cachedRowCount > 5) {
                             dispatch({ type: 'purchase/getGoodsList', payload: { loadType: 'add' } })
                         }
 

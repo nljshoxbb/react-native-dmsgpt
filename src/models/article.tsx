@@ -40,7 +40,7 @@ export default {
     effects: {
         *getArticle({ payload }, { put, call }) {
             const data = yield call(getArticle, payload);
-            console.log(data);
+        
             if (data.data.code === 'SUCCESS') {
                 yield put(createAction('setArticle')({ article: data.data.data }));
             } else {
