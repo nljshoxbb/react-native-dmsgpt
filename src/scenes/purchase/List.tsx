@@ -21,7 +21,7 @@ import theme from '../../style/theme/default.js';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 @connect(({ purchase }) => ({ purchase }))
-class NavList extends Component<any, any> {
+class List extends Component<any, any> {
 
     constructor(props: any) {
         super(props);
@@ -82,9 +82,9 @@ class NavList extends Component<any, any> {
             }}>
                 <Image
                     source={{ uri: rowData.pic + `?imageView2/2/w/206/h/206/interlace/1`, }}
-                    style={{ width: 103, height: 103 }}
+                    style={{ width: 90, height: 90 }}
                 />
-                <View style={{ flex: 1, flexDirection: "column", marginLeft: 10 }}>
+                <View style={{ flex: 1, flexDirection: "column", marginLeft: 10,justifyContent:'space-between' }}>
                     <Text style={{ fontSize: 14, }}>{rowData.name}</Text>
                     <Text style={{ color: theme.color_text_desalt, paddingTop: 5 }}>{rowData.summary.slice(0, 10)}</Text>
                     <View style={{ flexDirection: 'row', paddingTop: 5 }}>
@@ -110,10 +110,9 @@ class NavList extends Component<any, any> {
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 5 }}>
                         <View style={{ flexDirection: 'column', flex: 1 }}>
                             <Text style={{ color: theme.color_text_assist }}>产地：{rowData.origin}</Text>
-                            <View style={{ flexDirection: 'row' }}>
-                                <Text style={{ color: theme.brand_hot }}>{rowData.price}</Text>
-                                <Text style={{ color: theme.brand_hot }}>元/</Text>
-                                <Text style={{ color: theme.brand_hot }}>{rowData.unit}</Text>
+                            <View style={{ flexDirection: 'row',alignItems:'center' }}>
+                                <Text style={{ color: theme.brand_hot,fontSize:18,fontWeight:"600" }}>{rowData.price}</Text>
+                                <Text style={{ color: theme.brand_hot,fontSize:12 }}>元/{rowData.unit}</Text>
                             </View>
                         </View>
                         <TouchableWithoutFeedback
@@ -162,8 +161,13 @@ class NavList extends Component<any, any> {
         } else if (this.state.dataSource._cachedRowCount == 0) {
             return (
 
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', paddingTop: 100 }}>
-                    <Text >暂无此类商品</Text>
+                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', paddingTop: 30 }}>
+                    <View >
+                        <View style={{ justifyContent: 'center',flexDirection:'row' }}>
+                            <Image source={require('../../../assets/purchase_empty.jpg')} style={{ width: 55, height: 40, margin: 20 }} />
+                        </View>
+                        <Text style={{ color: theme.color_text_desalt,textAlign:'center' }}>暂无此类商品，敬请期待</Text>
+                    </View>
                 </View>
             )
         } else {
@@ -198,5 +202,5 @@ class NavList extends Component<any, any> {
 }
 
 
-export default NavList;
+export default List;
 

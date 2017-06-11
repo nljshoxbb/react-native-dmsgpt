@@ -11,7 +11,7 @@ export default {
     //全局
     brand_primary: brandPrimary,
     brand_primary_tap: brandPrimaryTap,
-    // brand_desalt: 'rgba(240,240,240,1)',
+    brand_desalt: 'rgba(240,240,240,1)',
     brand_success: '',
     brand_warning: 'rgba(240,182,23,1)',
     brand_hot: 'rgba(255,81,1,1)',

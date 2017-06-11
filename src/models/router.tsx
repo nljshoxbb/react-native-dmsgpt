@@ -47,22 +47,19 @@ export default {
             // debounce, see https://github.com/react-community/react-navigation/issues/271
             if (payload.type === 'Navigation/NAVIGATE') {
               yield call(delay, 100);
-              switch (payload.routeName) {
-                case "Purchase":
-                  if (!isEmptyObj(userInfo) && goodsList.length == 0) {
-                    yield put(createAction('purchase/init')());
-                  }
-                  break;
-                default:
-                  break;
-              }
+              // switch (payload.routeName) {
+              //   case "Purchase":
+              //     if (!isEmptyObj(userInfo) && goodsList.length == 0) {
+              //       yield put(createAction('purchase/init')());
+              //     }
+              //     break;
+              //   default:
+              //     break;
+              // }
               if (payload.routeName !== 'Login') {
                 yield put(createAction('setCurrentRoute')({ currentRoute: payload.routeName }));
               }
-
             }
-
-
           }
         } catch (error) {
           console.warn(error)

@@ -13,7 +13,8 @@ const watcher = fn => [fn, { type: 'watcher' }];
 const dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 const ACTIONS = [
     'user/logout',
-    'Navigation/BACK'
+    'Navigation/BACK',
+    'Navigation/NAVIGATE'
 ]
 
 export default {
@@ -143,7 +144,7 @@ export default {
         *getNavList({ payload }, { call, put, select }) {
             let { nationalList } = yield select(state => state.main);
             if (indexOf(nationalList, 'id', 0) == -1) {
-                nationalList.unshift({ id: 0, name: '全部' });
+                nationalList.unshift({ id: 0, name: '不限国家' });
             }
             yield put(createAction('setNavList')({ navList: nationalList }));
         },
@@ -157,16 +158,27 @@ export default {
                 try {
                     while (true) {
                         const payload = yield take(ACTIONS);
+
+                        const { router, user, purchase } = yield select(state => state);
+                        const { currentRoute } = router;
+                        const { userInfo } = user;
+                        const { goodsList } = purchase;
+
                         switch (payload.type) {
                             case ACTIONS[0]:
                                 yield put(createAction('clearPurchaseList')());
                                 break;
                             case ACTIONS[1]:
-                                const { router, user } = yield select(state => state);
-                                const { currentRoute } = router;
-                                const { userInfo } = user;
+
                                 if (currentRoute === 'Purchase' && !isEmptyObj(userInfo)) {
                                     yield put(createAction('init')());
+                                }
+                                break;
+                            case ACTIONS[2]:
+                                if (payload.routeName == 'Purchase') {
+                                    if (!isEmptyObj(userInfo) && goodsList.length == 0) {
+                                        yield put(createAction('init')());
+                                    }
                                 }
                                 break;
                             default:
