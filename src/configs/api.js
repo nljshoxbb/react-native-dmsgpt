@@ -23,3 +23,7 @@ export const newAfficheApi = "/Shop/Shop/getFruitAffiche";//最新公告列表
 export const goodsListApi = '/Shop/Shop/getGoodsList';
 //获取栏目
 export const categoryListApi = '/Shop/Shop/getCategory';
+//批量添加购物车
+export const bacthAddShoppingCartApi = '/Shopping/Public/arrBasket'; 
+//获取购物车列表
+export const shoppingCartListApi = '/Shopping/Public/checkBasket';

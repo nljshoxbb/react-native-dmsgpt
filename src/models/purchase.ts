@@ -1,7 +1,8 @@
 import { createAction, NavigationActions, dataSourceRowInit, delay, indexOf, isEmptyObj } from '../utils'
 import {
     getGoodsList,
-    getCategoryList
+    getCategoryList,
+    getShoppingCartList
 } from '../services/purchase';
 
 import { AsyncStorage, ListView } from 'react-native';
@@ -10,12 +11,21 @@ import axios from 'axios';
 import { multiConnect, multiSet, multiRemove } from '../configs/storage.js';
 const watcher = fn => [fn, { type: 'watcher' }];
 
+const interval = timeout => {
+    return new Promise(resolve => {
+        setInterval(resolve, timeout);
+    });
+};
 const dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 const ACTIONS = [
     'user/logout',
     'Navigation/BACK',
-    'Navigation/NAVIGATE'
+    'Navigation/NAVIGATE',
+    'user/loginSuccess',
+    'user/getUserInfo'
 ]
+
+let timer = null;
 
 export default {
     namespace: 'purchase',
@@ -33,7 +43,8 @@ export default {
             page_count: 0,
             page_index: 1,
             record_count: 0
-        }
+        },
+        shoppingCartList: []
     },
     reducers: {
         setInputValue(state, { payload }) {
@@ -74,7 +85,11 @@ export default {
         },
         clearPurchaseList(state, { payload }) {
             return { ...state, purchaseList: [] }
+        },
+        synchronousShoppingCartSuccess(state, { payload }) {
+            return { ...state, purchaseList: payload.list }
         }
+
     },
     effects: {
         *getGoodsList({ payload }, { call, put, select }) {
@@ -148,17 +163,38 @@ export default {
             }
             yield put(createAction('setNavList')({ navList: nationalList }));
         },
+        *synchronousShoppingCart({ payload }, { call, put, select }) {
+
+            const data = yield call(getShoppingCartList);
+            while (true) {
+                const { router, user, purchase } = yield select(state => state);
+                yield call(interval, 5000);
+                const data = yield call(getShoppingCartList);
+
+                console.log(data);
+                if (data.data.code === 'SUCCESS') {
+                    yield put(createAction('synchronousShoppingCartSuccess')({ list: data.data.data }));
+                } else if (data.data.code === 'ASK_LOGIN') {
+                    if (!isEmptyObj(user.userInfo)) {
+                        yield put(createAction('user/getAskLogin')());
+                    }
+                } else {
+                   
+                }
+            }
+        },
         *init({ payload }, { call, put, select }) {
             yield put(createAction('getNavList')());
             yield put(createAction('getCategoryList')());
             yield put(createAction('getGoodsList')({ loadType: 'init' }));
+
+
         },
         watch: [
             function* watch({ take, call, put, select }) {
                 try {
                     while (true) {
                         const payload = yield take(ACTIONS);
-
                         const { router, user, purchase } = yield select(state => state);
                         const { currentRoute } = router;
                         const { userInfo } = user;
@@ -175,11 +211,22 @@ export default {
                                 }
                                 break;
                             case ACTIONS[2]:
-                                if (payload.routeName == 'Purchase') {
-                                    if (!isEmptyObj(userInfo) && goodsList.length == 0) {
-                                        yield put(createAction('init')());
+                                if (!isEmptyObj(userInfo)) {
+                                    if (payload.routeName == 'Purchase') {
+                                        if (goodsList.length == 0) {
+                                            yield put(createAction('init')());
+
+                                        } else if (payload.routeName == 'Orders') {
+
+                                        }
                                     }
                                 }
+                                break;
+                            case ACTIONS[3]:
+                                yield put(createAction('synchronousShoppingCart')());
+                                break;
+                            case ACTIONS[4]:
+                                yield put(createAction('synchronousShoppingCart')());
                                 break;
                             default:
                                 break;

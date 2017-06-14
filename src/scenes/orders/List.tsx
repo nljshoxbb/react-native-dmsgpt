@@ -18,6 +18,8 @@ import {
 } from 'react-native';
 import { connect } from 'dva';
 import { CachedImage, ImageCache } from "react-native-img-cache";
+import Stepper from '../../components/Stepper';
+
 import theme from '../../style/theme/default.js';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -25,7 +27,6 @@ import { DEVICE_WIDTH } from '../../utils';
 
 import {
     Checkbox,
-    Stepper
 } from 'antd-mobile'
 // import { List } from 'antd-mobile';
 // const Item = List.Item;
@@ -79,11 +80,14 @@ class OrderList extends Component<any, any> {
         })
     }
 
+    _onChange = (val: any, id: string) => {
+        console.log(val,id);
+    }
+
     _renderRow = (item: any, sectionID: number, rowID: number) => {
         const rowData = item.rowData;
         const name = item.name;
-        console.log(rowData);
-        console.log('===============_renderRow============')
+      
         return (
             <View style={{
                 flexDirection: 'row',
@@ -93,7 +97,7 @@ class OrderList extends Component<any, any> {
                 <Checkbox
                     key="disabled"
                     defaultChecked
-                    onChange={() => { }}
+                    onChange={(val) => {console.log(<val></val>) }}
                     style={{ margin: 20 }}
                 />
                 <View style={{ flex: 1 }}>
@@ -127,7 +131,7 @@ class OrderList extends Component<any, any> {
                         flexDirection: 'row',
                         paddingTop: 6,
                         paddingBottom: 6,
-                        paddingRight:10,
+                        paddingRight: 10,
                         alignItems: 'center',
                         justifyContent: 'space-between'
                     }}>
@@ -135,30 +139,9 @@ class OrderList extends Component<any, any> {
                             <Text>金额</Text>
                             <Text style={{ fontSize: 20, color: theme.brand_important, paddingLeft: 5 }}>{rowData.price}元</Text>
                         </View>
-                        <View style={{ flexDirection: 'row', }}>
-                            <Ionicons
-                                name="ios-add"
-                                size={24}
-                                color={theme.brand_primary}
-                                style={{ width: 25, height: 25,backgroundColor:theme.brand_desalt,textAlign:'center',fontWeight:"800" }} />
-
-                            <TextInput
-                                style={{
-                                    borderColor: theme.brand_desalt,
-                                    borderWidth: 1,
-                                    width:50,
-                                    textAlign:'center',
-                                    fontSize:16
-                                }}
-                            />
-
-                            <Ionicons
-                                name="ios-remove"
-                                size={24}
-                                color={theme.brand_primary}
-                                 style={{ width: 25, height: 25,backgroundColor:theme.brand_desalt,textAlign:'center',fontWeight:"800" }} />
-
-                        </View>
+                        <Stepper
+                            onChange={(val: any) => this._onChange(val, rowData.id)}
+                        />
                     </View>
                 </View>
             </View>
