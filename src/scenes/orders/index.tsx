@@ -32,7 +32,7 @@ class Order extends Component<any, any> {
 
     _renderFooter = () => {
         return (
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopColor: '#F0F0F0', borderTopWidth: 1 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopColor: '#F0F0F0', borderTopWidth: 1,backgroundColor:'#fff' }}>
                 <View style={{ padding: 10, flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Checkbox
                         key="disabled"

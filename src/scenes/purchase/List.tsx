@@ -28,6 +28,7 @@ class List extends Component<any, any> {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => { return r1.name !== r2.name } });
         this.state = {
             dataSource: ds.cloneWithRows([]),
+            list: []
         }
 
     }
@@ -37,23 +38,43 @@ class List extends Component<any, any> {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { nation_id, goodsList } = nextProps.purchase;
+        const { nation_id, goodsList, purchaseList } = nextProps.purchase;
         const data = goodsList[nation_id];
+        let existId: any = [];
 
+        if (data && purchaseList.length > 0) {
+
+            data.forEach(element => {
+                purchaseList.forEach(item => {
+                    if (item.id == element.id) {
+                        existId.push(item.id);
+                    }
+                });
+            });
+
+        }
         this.setState({
-            dataSource: this.state.dataSource.cloneWithRows(data ? this._genRows(this._pressData, data) : []),
-            list: data ? data : []
+            dataSource: this.state.dataSource.cloneWithRows(data ? this._genRows(this._pressData, data, existId) : []),
+            list: data
         });
 
 
     }
 
-    _genRows = (pressData: any, data: any) => {
+    _genRows = (pressData: any, data: any, existId?: any) => {
         const { purchaseList } = this.props.purchase;
 
         var dataBlob = [];
+
         for (var ii = 0; ii < data.length; ii++) {
             var pressedText = pressData[ii] ? 'isExist' : '';
+            if (existId) {
+                existId.forEach(element => {
+                    if (element == data[ii].id) {
+                        pressedText = 'isExist';
+                    }
+                });
+            }
             dataBlob.push({ name: pressedText, rowData: data[ii] });
         }
 
@@ -70,7 +91,7 @@ class List extends Component<any, any> {
     _renderRow = (item: any, sectionID: number, rowID: number) => {
         const rowData = item.rowData;
         const name = item.name;
-        console.log('===============_renderRow============')
+        console.log('===============_renderRow============');
         return (
 
             <View style={{
@@ -84,7 +105,7 @@ class List extends Component<any, any> {
                     source={{ uri: rowData.pic + `?imageView2/2/w/206/h/206/interlace/1`, }}
                     style={{ width: 90, height: 90 }}
                 />
-                <View style={{ flex: 1, flexDirection: "column", marginLeft: 10,justifyContent:'space-between' }}>
+                <View style={{ flex: 1, flexDirection: "column", marginLeft: 10, justifyContent: 'space-between' }}>
                     <Text style={{ fontSize: 14, }}>{rowData.name}</Text>
                     <Text style={{ color: theme.color_text_desalt, paddingTop: 5 }}>{rowData.summary.slice(0, 10)}</Text>
                     <View style={{ flexDirection: 'row', paddingTop: 5 }}>
@@ -110,14 +131,14 @@ class List extends Component<any, any> {
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 5 }}>
                         <View style={{ flexDirection: 'column', flex: 1 }}>
                             <Text style={{ color: theme.color_text_assist }}>产地：{rowData.origin}</Text>
-                            <View style={{ flexDirection: 'row',alignItems:'center' }}>
-                                <Text style={{ color: theme.brand_hot,fontSize:18,fontWeight:"600" }}>{rowData.price}</Text>
-                                <Text style={{ color: theme.brand_hot,fontSize:12 }}>元/{rowData.unit}</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={{ color: theme.brand_hot, fontSize: 18, fontWeight: "600" }}>{rowData.price}</Text>
+                                <Text style={{ color: theme.brand_hot, fontSize: 12 }}>元/{rowData.unit}</Text>
                             </View>
                         </View>
                         <TouchableWithoutFeedback
                             onPress={() => {
-                                this.props.dispatch({ type: `purchase/${name ? 'dec' : 'add'}PurchaseList`, payload: rowData })
+                                this.props.dispatch({ type: `purchase/changePurchaseList`, payload: { type: name ? 'dec' : 'add', item: rowData } })
                                 this._pressRow(rowID, rowData);
                             }}
                         >
@@ -163,10 +184,10 @@ class List extends Component<any, any> {
 
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', paddingTop: 30 }}>
                     <View >
-                        <View style={{ justifyContent: 'center',flexDirection:'row' }}>
+                        <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
                             <Image source={require('../../../assets/purchase_empty.jpg')} style={{ width: 55, height: 40, margin: 20 }} />
                         </View>
-                        <Text style={{ color: theme.color_text_desalt,textAlign:'center' }}>暂无此类商品，敬请期待</Text>
+                        <Text style={{ color: theme.color_text_desalt, textAlign: 'center' }}>暂无此类商品，敬请期待</Text>
                     </View>
                 </View>
             )

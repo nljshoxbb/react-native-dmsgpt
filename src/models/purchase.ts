@@ -2,7 +2,8 @@ import { createAction, NavigationActions, dataSourceRowInit, delay, indexOf, isE
 import {
     getGoodsList,
     getCategoryList,
-    getShoppingCartList
+    getShoppingCartList,
+    bacthAddShoppingCart
 } from '../services/purchase';
 
 import { AsyncStorage, ListView } from 'react-native';
@@ -72,7 +73,6 @@ export default {
             return { ...state, ...payload };
         },
         addPurchaseList(state, { payload }) {
-            const { goodsList, nation_id } = state;
             return { ...state, purchaseList: [...state.purchaseList, payload] }
         },
         decPurchaseList(state, { payload }) {
@@ -170,8 +170,6 @@ export default {
                 const { router, user, purchase } = yield select(state => state);
                 yield call(interval, 5000);
                 const data = yield call(getShoppingCartList);
-
-                console.log(data);
                 if (data.data.code === 'SUCCESS') {
                     yield put(createAction('synchronousShoppingCartSuccess')({ list: data.data.data }));
                 } else if (data.data.code === 'ASK_LOGIN') {
@@ -179,9 +177,34 @@ export default {
                         yield put(createAction('user/getAskLogin')());
                     }
                 } else {
-                   
+
                 }
             }
+        },
+        *changePurchaseList({ payload }, { call, put, select }) {
+            const { type, item } = payload;
+            if (type == 'add') {
+                yield put(createAction('addPurchaseList')(item));
+            } else if (type == 'dec') {
+                yield put(createAction('decPurchaseList')(item));
+            }
+
+            const { purchaseList } = yield select(state => state.purchase);
+            let postList = [];
+            for (let i = 0; i < purchaseList.length; i++) {
+                const item = purchaseList[i];
+                  console.log(item)
+                postList.push({ goodsid: item.id, num: item.g_num?item.g_num:1, grade: item.grade });
+            }
+
+            const data = yield call(bacthAddShoppingCart, { basket: JSON.stringify(postList) });
+            if (data.data.code === 'SUCCESS') {
+
+            }else{
+
+            }
+
+            console.log(data);
         },
         *init({ payload }, { call, put, select }) {
             yield put(createAction('getNavList')());
