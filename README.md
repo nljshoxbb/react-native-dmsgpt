@@ -3,7 +3,9 @@ A React-Native Client for [dmsgpt](http://www.dmsgpt.com/)
 
 1.npm install 
 
-2.npm tsc
+2.react-native link 
 
-3.react-native run-ios
+3.npm tsc
+
+4.react-native run-ios
 
